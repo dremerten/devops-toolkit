@@ -1,0 +1,293 @@
+<script lang="ts" setup>
+import { onMounted } from 'vue';
+import { NIcon, useThemeVars } from 'naive-ui';
+
+import { RouterLink } from 'vue-router';
+import { Heart, Home2, Menu2 } from '@vicons/tabler';
+
+import { storeToRefs } from 'pinia';
+import HeroGradient from '../assets/hero-gradient.svg?component';
+import MenuLayout from '../components/MenuLayout.vue';
+import NavbarButtons from '../components/NavbarButtons.vue';
+import { useStyleStore } from '@/stores/style.store';
+import { config } from '@/config';
+import type { ToolCategory } from '@/tools/tools.types';
+import { useToolStore } from '@/tools/tools.store';
+import { useTracker } from '@/modules/tracker/tracker.services';
+import CollapsibleToolMenu from '@/components/CollapsibleToolMenu.vue';
+import { getEnvColorScheme } from '@/utils/env-colors';
+import { detectEnvironment } from '@/utils/runtime-env';
+
+const themeVars = useThemeVars();
+const styleStore = useStyleStore();
+const version = config.app.version;
+const commitSha = config.app.lastCommitSha.slice(0, 7);
+
+const { tracker } = useTracker();
+const { t } = useI18n();
+
+const currentEnvironment = computed(() => detectEnvironment());
+
+const environmentDisplay = computed(() => {
+  const env = currentEnvironment.value;
+  if (env === 'production') return 'PRODUCTION';
+  if (env === 'staging') return 'STAGING';
+  if (env === 'qa') return 'QA';
+  if (env === 'development') return 'DEVELOPMENT';
+  return null;
+});
+
+const envColors = computed(() => getEnvColorScheme());
+const envBadgeStyle = computed(() => ({
+  backgroundColor: envColors.value.primary,
+  borderColor: envColors.value.primary,
+  color: '#ffffff',
+  boxShadow: `0 0 20px ${envColors.value.primary}40`,
+}));
+
+// Debug: Log on mount
+onMounted(() => {
+  console.log('[DEBUG] Environment Detection Info:', {
+    hostname: window.location.hostname,
+    href: window.location.href,
+    detected: currentEnvironment.value,
+    displayName: environmentDisplay.value,
+    colors: envColors.value,
+  });
+});
+
+const toolStore = useToolStore();
+const { favoriteTools, toolsByCategory } = storeToRefs(toolStore);
+
+const tools = computed<ToolCategory[]>(() => [
+  ...(favoriteTools.value.length > 0 ? [{ name: t('tools.categories.favorite-tools'), components: favoriteTools.value }] : []),
+  ...toolsByCategory.value,
+]);
+</script>
+
+<template>
+  <!-- Environment Colors v2.0 - Runtime Detection -->
+  <div class="environment-wrapper">
+    <div v-if="environmentDisplay" class="env-top-bar" :style="{ backgroundColor: envColors.primary }">
+      <div class="env-top-bar-content">
+        <span class="env-indicator-dot" :style="{ backgroundColor: '#fff' }"></span>
+        {{ environmentDisplay }} ENVIRONMENT
+      </div>
+    </div>
+    <MenuLayout class="menu-layout" :class="{ isSmallScreen: styleStore.isSmallScreen }">
+      <template #sider>
+      <RouterLink to="/" class="hero-wrapper">
+        <HeroGradient class="gradient" />
+        <div class="text-wrapper">
+          <div class="title">
+            DEVOPS TOOLKIT
+          </div>
+          <div class="divider" />
+          <div v-if="environmentDisplay" class="environment-badge" :style="envBadgeStyle">
+            {{ environmentDisplay }}
+          </div>
+        </div>
+      </RouterLink>
+
+      <div class="sider-content">
+        <div v-if="styleStore.isSmallScreen" flex flex-col items-center>
+          <div flex justify-center>
+            <NavbarButtons />
+          </div>
+        </div>
+
+        <CollapsibleToolMenu :tools-by-category="tools" />
+
+        <div class="footer">
+          <div>
+            DevOps Toolkit v{{ version }}
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template #content>
+      <div flex items-center justify-center gap-2>
+        <c-button
+          circle
+          variant="text"
+          :aria-label="$t('home.toggleMenu')"
+          @click="styleStore.isMenuCollapsed = !styleStore.isMenuCollapsed"
+        >
+          <NIcon size="25" :component="Menu2" />
+        </c-button>
+
+        <c-tooltip :tooltip="$t('home.home')" position="bottom">
+          <c-button to="/" circle variant="text" :aria-label="$t('home.home')">
+            <NIcon size="25" :component="Home2" />
+          </c-button>
+        </c-tooltip>
+
+        <command-palette />
+
+        <div>
+          <NavbarButtons v-if="!styleStore.isSmallScreen" />
+        </div>
+      </div>
+      <slot />
+    </template>
+  </MenuLayout>
+  </div>
+</template>
+
+<style lang="less" scoped>
+.environment-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.env-top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  color: white;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+.env-top-bar-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.env-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.menu-layout {
+  padding-top: 32px;
+}
+
+// ::v-deep(.n-layout-scroll-container) {
+//     @percent: 4%;
+//     @position: 25px;
+//     @size: 50px;
+//     @color: #eeeeee25;
+//     background-image: radial-gradient(@color @percent, transparent @percent),
+//         radial-gradient(@color @percent, transparent @percent);
+//     background-position: 0 0, @position @position;
+//     background-size: @size @size;
+// }
+
+.support-button {
+  background: rgb(37, 99, 108);
+  background: linear-gradient(48deg, rgba(37, 99, 108, 1) 0%, rgba(59, 149, 111, 1) 60%, rgba(20, 160, 88, 1) 100%);
+  color: #fff !important;
+  transition: padding ease 0.2s !important;
+
+  &:hover {
+    color: #fff;
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+}
+
+.footer {
+  text-align: center;
+  color: #838587;
+  margin-top: 20px;
+  padding: 20px 0;
+}
+
+.sider-content {
+  padding-top: 160px;
+  padding-bottom: 200px;
+}
+
+.hero-wrapper {
+  position: absolute;
+  display: block;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  overflow: hidden;
+
+  .gradient {
+    margin-top: -65px;
+  }
+
+  .text-wrapper {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    top: 16px;
+    color: #fff;
+
+    .title {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    .divider {
+      width: 70px;
+      height: 3px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #0ea5e9 0%, #7dd3fc 100%);
+      margin: 0 auto 5px;
+    }
+
+    .environment-badge {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 6px 16px;
+      border-radius: 16px;
+      display: inline-block;
+      margin-top: 8px;
+      border: 2px solid;
+      transition: all 0.3s ease;
+      animation: pulse 2s ease-in-out infinite;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.85;
+      }
+    }
+
+    .subtitle {
+      font-size: 15px;
+      font-weight: 500;
+      opacity: 0.95;
+    }
+  }
+}
+</style>
