@@ -1,0 +1,48 @@
+name: Deploy to Staging (Manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging-devops-toolkit.dremer10.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Deploy to Staging
+        run: |
+          echo "🚀 Starting staging deployment..."
+          kubectl rollout restart deployment/devops-toolkit -n staging
+          kubectl rollout status deployment/devops-toolkit -n staging --timeout=300s
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n staging -l app=devops-toolkit
+          kubectl get ingress -n staging devops-toolkit-staging
+
+      - name: Deployment summary
+        run: |
+          echo "### Staging Deployment Summary :warning:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Staging" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://staging-devops-toolkit.dremer10.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Deployed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Color Theme**: 🟠 Amber (Staging)" >> $GITHUB_STEP_SUMMARY
