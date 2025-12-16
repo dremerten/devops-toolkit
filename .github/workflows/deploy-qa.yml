@@ -1,0 +1,48 @@
+name: Deploy to QA (Manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-qa:
+    name: Deploy to QA
+    runs-on: ubuntu-latest
+    environment:
+      name: qa
+      url: https://qa-devops-toolkit.dremer10.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Deploy to QA
+        run: |
+          echo "🚀 Starting QA deployment..."
+          kubectl rollout restart deployment/devops-toolkit -n qa
+          kubectl rollout status deployment/devops-toolkit -n qa --timeout=300s
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n qa -l app=devops-toolkit
+          kubectl get ingress -n qa devops-toolkit-qa
+
+      - name: Deployment summary
+        run: |
+          echo "### QA Deployment Summary :test_tube:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: QA" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://qa-devops-toolkit.dremer10.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Deployed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Color Theme**: 🔵 Cyan (QA)" >> $GITHUB_STEP_SUMMARY
