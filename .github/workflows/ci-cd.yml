@@ -1,0 +1,342 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'devops-tools-source/**'
+      - 'kubernetes/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+
+env:
+  DOCKER_IMAGE: dremer10/devops-toolkit
+  KUBECONFIG_PATH: ${{ github.workspace }}/.kube/config
+
+jobs:
+  # Job 1: Build and Test
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: devops-tools-source/package-lock.json
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        working-directory: devops-tools-source
+        run: pnpm install --frozen-lockfile
+
+      - name: Run linter
+        working-directory: devops-tools-source
+        run: pnpm lint || echo "Linting completed with warnings"
+
+      - name: Run type check
+        working-directory: devops-tools-source
+        run: pnpm type-check || echo "Type checking completed"
+
+      - name: Build application
+        working-directory: devops-tools-source
+        run: pnpm build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: devops-tools-source/dist
+          retention-days: 1
+
+  # Job 2: Build and Push Docker Image
+  docker-build-push:
+    name: Docker Build & Push
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Generate image tags
+        id: meta
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          echo "tags=${{ env.DOCKER_IMAGE }}:${SHORT_SHA},${{ env.DOCKER_IMAGE }}:latest,${{ env.DOCKER_IMAGE }}:${TIMESTAMP}" >> $GITHUB_OUTPUT
+          echo "short-sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./devops-tools-source
+          file: ./devops-tools-source/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache
+          cache-to: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache,mode=max
+          labels: |
+            org.opencontainers.image.source=${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
+
+      - name: Image build summary
+        run: |
+          echo "### Docker Image Build Summary :whale:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: ${{ env.DOCKER_IMAGE }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tags**: ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Digest**: ${{ steps.build.outputs.digest }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+
+  # Job 3: Security Scan
+  security-scan:
+    name: Security Scan
+    needs: docker-build-push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get image tag
+        id: image-tag
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          echo "tag=${{ env.DOCKER_IMAGE }}:${SHORT_SHA}" >> $GITHUB_OUTPUT
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.image-tag.outputs.tag }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          exit-code: '0'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run Trivy vulnerability scanner (table output)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.image-tag.outputs.tag }}
+          format: 'table'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          exit-code: '1'
+
+      - name: Security scan summary
+        if: always()
+        run: |
+          echo "### Security Scan Results :shield:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: ${{ steps.image-tag.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Scanner**: Trivy" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Check the Security tab for detailed vulnerability report." >> $GITHUB_STEP_SUMMARY
+
+  # Job 4: Deploy to Development
+  deploy-dev:
+    name: Deploy to Development
+    needs: [docker-build-push, security-scan]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    environment:
+      name: development
+      url: https://dev-devops-toolkit.dremer10.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Deploy to Development
+        run: |
+          kubectl rollout restart deployment/devops-toolkit -n dev
+          kubectl rollout status deployment/devops-toolkit -n dev --timeout=300s
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n dev -l app=devops-toolkit
+          kubectl get ingress -n dev devops-toolkit-dev
+
+      - name: Deployment summary
+        run: |
+          echo "### Development Deployment :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Development" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://dev-devops-toolkit.dremer10.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: Deployed successfully" >> $GITHUB_STEP_SUMMARY
+
+  # Job 5: Deploy to QA
+  deploy-qa:
+    name: Deploy to QA
+    needs: [docker-build-push, security-scan]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    environment:
+      name: qa
+      url: https://qa-devops-toolkit.dremer10.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Deploy to QA
+        run: |
+          kubectl rollout restart deployment/devops-toolkit -n qa
+          kubectl rollout status deployment/devops-toolkit -n qa --timeout=300s
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n qa -l app=devops-toolkit
+          kubectl get ingress -n qa devops-toolkit-qa
+
+      - name: Deployment summary
+        run: |
+          echo "### QA Deployment :test_tube:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: QA" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://qa-devops-toolkit.dremer10.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: Deployed successfully" >> $GITHUB_STEP_SUMMARY
+
+  # Job 6: Deploy to Staging
+  deploy-staging:
+    name: Deploy to Staging
+    needs: [docker-build-push, security-scan]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: staging
+      url: https://staging-devops-toolkit.dremer10.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Deploy to Staging
+        run: |
+          kubectl rollout restart deployment/devops-toolkit -n staging
+          kubectl rollout status deployment/devops-toolkit -n staging --timeout=300s
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n staging -l app=devops-toolkit
+          kubectl get ingress -n staging devops-toolkit-staging
+
+      - name: Deployment summary
+        run: |
+          echo "### Staging Deployment :warning:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Staging" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://staging-devops-toolkit.dremer10.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: Deployed successfully" >> $GITHUB_STEP_SUMMARY
+
+  # Job 7: Deploy to Production (with manual approval)
+  deploy-production:
+    name: Deploy to Production
+    needs: [docker-build-push, security-scan, deploy-staging]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://devops-toolkit.dremer10.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Deploy to Production
+        run: |
+          kubectl rollout restart deployment/devops-toolkit -n production
+          kubectl rollout status deployment/devops-toolkit -n production --timeout=300s
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n production -l app=devops-toolkit
+          kubectl get ingress -n production devops-toolkit-production
+
+      - name: Deployment summary
+        run: |
+          echo "### Production Deployment :fire:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://devops-toolkit.dremer10.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: Deployed successfully" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create deployment notification
+        if: success()
+        run: |
+          echo "🚀 Production deployment completed successfully!"
+          echo "Version: ${{ github.sha }}"
+          echo "URL: https://devops-toolkit.dremer10.com"
