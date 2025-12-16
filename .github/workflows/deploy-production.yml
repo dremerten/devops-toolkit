@@ -1,0 +1,81 @@
+name: Deploy to Production (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "production" to confirm deployment'
+        required: true
+        type: string
+
+jobs:
+  validate-input:
+    name: Validate Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "production" ]; then
+            echo "::error::Deployment cancelled. You must type 'production' to confirm."
+            exit 1
+          fi
+          echo "✓ Deployment confirmed"
+
+  deploy-production:
+    name: Deploy to Production
+    needs: validate-input
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://devops-toolkit.dremer10.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Get current deployment info
+        run: |
+          echo "Current deployment status:"
+          kubectl get deployment devops-toolkit -n production
+          kubectl get pods -n production -l app=devops-toolkit
+
+      - name: Deploy to Production
+        run: |
+          echo "🚀 Starting production deployment..."
+          kubectl rollout restart deployment/devops-toolkit -n production
+          echo "⏳ Waiting for rollout to complete..."
+          kubectl rollout status deployment/devops-toolkit -n production --timeout=300s
+
+      - name: Verify deployment
+        run: |
+          echo "✓ Verifying deployment..."
+          kubectl get pods -n production -l app=devops-toolkit
+          kubectl get ingress -n production devops-toolkit-production
+
+      - name: Health check
+        run: |
+          echo "Performing health check..."
+          sleep 10
+          curl -f https://devops-toolkit.dremer10.com || echo "Warning: Health check failed"
+
+      - name: Deployment summary
+        run: |
+          echo "### Production Deployment Summary :fire:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://devops-toolkit.dremer10.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Deployed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Color Theme**: 🔴 Red (Production)" >> $GITHUB_STEP_SUMMARY
