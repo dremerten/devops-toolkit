@@ -1,5 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router';
 import DemoHome from './demo-home.page.vue';
+import SteampunkDemo from '../../pages/SteampunkDemo.page.vue';
+import PegboardDemo from '../../pages/PegboardDemo.page.vue';
 
 const demoPages = import.meta.glob('../*/*.demo.vue', { eager: true });
 
@@ -15,6 +17,16 @@ export const demoRoutes = Object.keys(demoPages).map((demoComponentPath) => {
 });
 
 export const routes = [
+  {
+    path: '/steampunk-demo',
+    name: 'steampunk-demo',
+    component: SteampunkDemo,
+  },
+  {
+    path: '/pegboard-demo',
+    name: 'pegboard-demo',
+    component: PegboardDemo,
+  },
   {
     path: '/c-lib',
     name: 'c-lib',
