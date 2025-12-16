@@ -32,7 +32,8 @@ function toggleCategoryCollapse({ name }: { name: string }) {
 const menuOptions = computed(() =>
   toolsByCategory.value.map(({ name, components }) => ({
     name,
-    isCollapsed: collapsedCategories.value[name],
+    // Default to collapsed (true) if not explicitly set in storage
+    isCollapsed: collapsedCategories.value[name] !== undefined ? collapsedCategories.value[name] : true,
     tools: components.map(tool => ({
       label: makeLabel(tool),
       icon: makeIcon(tool),
@@ -46,12 +47,16 @@ const themeVars = useThemeVars();
 
 <template>
   <div v-for="{ name, tools, isCollapsed } of menuOptions" :key="name">
-    <div ml-6px mt-12px flex cursor-pointer items-center op-60 @click="toggleCategoryCollapse({ name })">
-      <span :class="{ 'rotate-0': isCollapsed, 'rotate-90': !isCollapsed }" text-16px lh-1 op-50 transition-transform>
+    <div
+      class="category-header"
+      :class="{ 'category-collapsed': isCollapsed }"
+      @click="toggleCategoryCollapse({ name })"
+    >
+      <span class="chevron-icon" :class="{ 'rotate-0': isCollapsed, 'rotate-90': !isCollapsed }">
         <icon-mdi-chevron-right />
       </span>
 
-      <span ml-8px text-13px>
+      <span class="category-name">
         {{ name }}
       </span>
     </div>
@@ -75,23 +80,91 @@ const themeVars = useThemeVars();
 </template>
 
 <style scoped lang="less">
+.category-header {
+  margin-left: 8px;
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 10px;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  opacity: 0.85;
+  user-select: none;
+  background-color: transparent;
+
+  &:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: translateX(3px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  &.category-collapsed {
+    opacity: 0.65;
+  }
+
+  .chevron-icon {
+    font-size: 15px;
+    line-height: 1;
+    opacity: 0.7;
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .category-name {
+    margin-left: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  &:active {
+    transform: translateX(4px) scale(0.99);
+  }
+}
+
 .menu-wrapper {
   display: flex;
   flex-direction: row;
   .menu {
     flex: 1;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
 
-    ::v-deep(.n-menu-item-content::before) {
-      left: 0;
-      right: 13px;
+    ::v-deep(.n-menu-item-content) {
+      border-radius: 10px;
+      margin: 2px 8px;
+      padding-left: 12px;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 14px;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.06) !important;
+        transform: translateX(2px);
+      }
+
+      &::before {
+        left: 8px;
+        right: 8px;
+        border-radius: 10px;
+      }
+
+      &.n-menu-item-content--selected {
+        background-color: rgba(255, 255, 255, 0.12) !important;
+        font-weight: 500;
+      }
     }
   }
 
   .toggle-bar {
-    width: 24px;
-    opacity: 0.1;
-    transition: opacity ease 0.2s;
+    width: 20px;
+    opacity: 0.08;
+    transition: opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     position: relative;
     cursor: pointer;
 
@@ -99,15 +172,20 @@ const themeVars = useThemeVars();
       width: 2px;
       height: 100%;
       content: ' ';
-      background-color: v-bind('themeVars.textColor3');
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.1) 100%
+      );
       border-radius: 2px;
       position: absolute;
       top: 0;
-      left: 14px;
+      left: 12px;
     }
 
     &:hover {
-      opacity: 0.5;
+      opacity: 0.25;
     }
   }
 }

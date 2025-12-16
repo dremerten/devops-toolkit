@@ -1,0 +1,86 @@
+<script setup lang="ts">
+defineProps<{
+  tool: string
+  size?: number
+}>()
+</script>
+
+<template>
+  <svg :width="size || 80" :height="size || 80" viewBox="0 0 100 100" class="tool-silhouette">
+    
+    <!-- 1. file-binary -->
+    <g v-if="tool === 'file-binary'">
+      <path d="M25,10 L60,10 L75,25 L75,90 L25,90 Z" fill="currentColor" />
+      <path d="M60,10 L60,25 L75,25" fill="#1a1a1a" />
+      <text x="38" y="45" font-size="20" fill="#1a1a1a" font-weight="bold" font-family="monospace">01</text>
+      <text x="38" y="70" font-size="20" fill="#1a1a1a" font-weight="bold" font-family="monospace">10</text>
+    </g>
+
+    <!-- 2. text-binary -->
+    <g v-else-if="tool === 'text-binary'">
+      <rect x="15" y="25" width="70" height="50" rx="5" fill="currentColor" />
+      <text x="22" y="50" font-size="14" fill="#1a1a1a" font-family="monospace">010</text>
+      <text x="22" y="65" font-size="14" fill="#1a1a1a" font-family="monospace">110</text>
+    </g>
+
+    <!-- 3. user-lock -->
+    <g v-else-if="tool === 'user-lock'">
+      <circle cx="35" cy="30" r="15" fill="currentColor" />
+      <path d="M20,55 Q35,45 50,55 L50,75 L20,75 Z" fill="currentColor" />
+      <rect x="55" y="55" width="30" height="30" rx="4" fill="currentColor" />
+      <path d="M60,55 L60,48 C60,42 67,38 73,38 C79,38 86,42 86,48 L86,55" fill="none" stroke="currentColor" stroke-width="5" />
+      <circle cx="70" cy="68" r="3" fill="#1a1a1a" />
+    </g>
+
+    <!-- 4. envelope-check -->
+    <g v-else-if="tool === 'envelope-check'">
+      <rect x="12" y="30" width="60" height="40" rx="4" fill="currentColor" />
+      <path d="M12,30 L42,52 L72,30" fill="none" stroke="#1a1a1a" stroke-width="5" />
+      <path d="M75,52 L80,57 L92,40" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+
+    <!-- 5. text-art -->
+    <g v-else-if="tool === 'text-art'">
+      <text x="18" y="35" font-size="24" fill="currentColor" font-weight="bold">A</text>
+      <text x="38" y="35" font-size="20" fill="currentColor" font-style="italic">r</text>
+      <text x="54" y="35" font-size="22" fill="currentColor">T</text>
+      <path d="M15,45 Q50,55 85,45" stroke="currentColor" stroke-width="3" fill="none" />
+      <text x="25" y="75" font-size="16" fill="currentColor" font-family="monospace">ASCII</text>
+    </g>
+
+    <!-- 6. unicode -->
+    <g v-else-if="tool === 'unicode'">
+      <circle cx="50" cy="50" r="35" fill="currentColor" />
+      <text x="32" y="62" font-size="28" fill="#1a1a1a" font-weight="bold">U+</text>
+      <text x="25" y="82" font-size="12" fill="currentColor">Unicode</text>
+    </g>
+
+    <!-- 7. link-broken -->
+    <g v-else-if="tool === 'link-broken'">
+      <path d="M25,35 L35,25 Q40,20 45,25 L50,30" stroke="currentColor" stroke-width="7" stroke-linecap="round" fill="none" />
+      <path d="M75,65 L65,75 Q60,80 55,75 L50,70" stroke="currentColor" stroke-width="7" stroke-linecap="round" fill="none" />
+      <line x1="42" y1="58" x2="58" y2="42" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-dasharray="5,8" />
+    </g>
+
+    <!-- 8. angle-to-bracket -->
+    <g v-else-if="tool === 'angle-to-bracket'">
+      <path d="M20,30 L35,50 L20,70" stroke="currentColor" stroke-width="6" fill="none" />
+      <path d="M30,30 L45,50 L30,70" stroke="currentColor" stroke-width="6" fill="none" />
+      <path d="M50,40 L65,40 L65,60 L50,60" stroke="currentColor" stroke-width="6" fill="none" />
+      <path d="M70,40 L85,40 L85,60 L70,60" stroke="currentColor" stroke-width="6" fill="none" />
+    </g>
+
+    <!-- 9. bracket-to-angle -->
+    <g v-else-if="tool === 'bracket-to-angle'">
+      <path d="M15,40 L30,40 L30,60 L15,60" stroke="currentColor" stroke-width="6" fill="none" />
+      <path d="M35,40 L50,40 L50,60 L35,60" stroke="currentColor" stroke-width="6" fill="none" />
+      <path d="M55,30 L70,50 L55,70" stroke="currentColor" stroke-width="6" fill="none" />
+      <path d="M65,30 L80,50 L65,70" stroke="currentColor" stroke-width="6" fill="none" />
+    </g>
+
+    <!-- 10. regex -->
+    <g v-else-if="tool === 'regex'">
+      <circle cx="50" cy="50" r="32" fill="none" stroke="currentColor" stroke-width="5" />
+      <text x="28" y="62" font-size="32" fill="currentColor" font-weight="bold" font-family="monospace">.*</text>
+    </g>
+
