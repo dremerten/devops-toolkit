@@ -1,0 +1,48 @@
+name: Deploy to Dev (Manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-dev:
+    name: Deploy to Development
+    runs-on: ubuntu-latest
+    environment:
+      name: development
+      url: https://dev-devops-toolkit.dremer10.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Deploy to Development
+        run: |
+          echo "🚀 Starting development deployment..."
+          kubectl rollout restart deployment/devops-toolkit -n dev
+          kubectl rollout status deployment/devops-toolkit -n dev --timeout=300s
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n dev -l app=devops-toolkit
+          kubectl get ingress -n dev devops-toolkit-dev
+
+      - name: Deployment summary
+        run: |
+          echo "### Development Deployment Summary :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Development" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://dev-devops-toolkit.dremer10.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Deployed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Color Theme**: 🟢 Green (Development)" >> $GITHUB_STEP_SUMMARY
