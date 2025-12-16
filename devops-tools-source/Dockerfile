@@ -1,6 +1,7 @@
-# build stage
 FROM node:lts-alpine AS build-stage
-# Set environment variables for non-interactive npm installs
+
+RUN apk update && apk upgrade --no-cache
+
 ENV NPM_CONFIG_LOGLEVEL warn
 ENV CI true
 WORKDIR /app
@@ -9,8 +10,10 @@ RUN npm install -g pnpm && pnpm i --frozen-lockfile
 COPY . .
 RUN pnpm build
 
-# production stage
 FROM nginx:stable-alpine AS production-stage
+
+RUN apk update && apk upgrade --no-cache
+
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
