@@ -5,16 +5,16 @@ import { getEnvBadgeStyle } from '@/utils/env-colors';
 const envDisplay = computed(() => {
   const env = detectEnvironment();
   if (env === 'production') {
-    return "Andre's PROD";
+    return 'Andre\'s PROD';
   }
   if (env === 'staging') {
-    return "Andre's STAGING";
+    return 'Andre\'s STAGING';
   }
   if (env === 'qa') {
-    return "Andre's QA";
+    return 'Andre\'s QA';
   }
   if (env === 'development') {
-    return "Andre's DEV";
+    return 'Andre\'s DEV';
   }
   return null;
 });

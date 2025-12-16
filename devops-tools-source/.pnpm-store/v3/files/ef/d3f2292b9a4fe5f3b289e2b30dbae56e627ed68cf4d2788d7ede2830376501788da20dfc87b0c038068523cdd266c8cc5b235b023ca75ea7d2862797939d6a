@@ -1,0 +1,2 @@
+import{getIntegerFromBin as r,getChecksumBin as o}from"./common.js";import{list as t}from"./wordLists/english.wordlist.js";function i(i,n=t){const s=i.trim().split(n.spacer).filter(Boolean).map((r=>n.words.indexOf(r).toString(2).padStart(11,"0"))).join(""),e=32*Math.floor(s.length/33),m=s.slice(0,e),l=s.slice(e),a=(m.match(/(.{1,8})/g)??[]).map((o=>r(o)));if(o(a)!==l)throw new Error("[bip39] Invalid checksum.");return Array.from(a,(r=>("0"+(255&r).toString(16)).slice(-2))).join("")}export{i as mnemonicToEntropy};
+//# sourceMappingURL=mnemonic.js.map

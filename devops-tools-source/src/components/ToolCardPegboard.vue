@@ -1,44 +1,53 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { Tool } from '@/tools'
-import ToolSilhouettes from './ToolSilhouettes.vue'
+import { computed } from 'vue';
+import ToolSilhouettes from './ToolSilhouettes.vue';
+import type { Tool } from '@/tools';
 
 const props = defineProps<{
   tool: Tool
   silhouetteType?: string
-}>()
+}>();
 
 const emit = defineEmits<{
   click: []
-}>()
+}>();
 
 // Map tool categories to silhouette types
 const getSilhouetteType = computed(() => {
-  if (props.silhouetteType)
-    return props.silhouetteType
+  if (props.silhouetteType) {
+    return props.silhouetteType;
+  }
 
-  const name = props.tool.name.toLowerCase()
+  const name = props.tool.name.toLowerCase();
 
   // Map based on tool name keywords
-  if (name.includes('key') || name.includes('rsa') || name.includes('generator'))
-    return 'key'
-  if (name.includes('hash') || name.includes('encrypt') || name.includes('bcrypt'))
-    return 'lock'
-  if (name.includes('json') || name.includes('yaml') || name.includes('xml') || name.includes('code'))
-    return 'code'
-  if (name.includes('network') || name.includes('ip') || name.includes('subnet'))
-    return 'network'
-  if (name.includes('database') || name.includes('sql'))
-    return 'database'
-  if (name.includes('docker') || name.includes('container'))
-    return 'server'
-  if (name.includes('regex') || name.includes('text'))
-    return 'wrench'
-  if (name.includes('converter') || name.includes('transform'))
-    return 'gear'
+  if (name.includes('key') || name.includes('rsa') || name.includes('generator')) {
+    return 'key';
+  }
+  if (name.includes('hash') || name.includes('encrypt') || name.includes('bcrypt')) {
+    return 'lock';
+  }
+  if (name.includes('json') || name.includes('yaml') || name.includes('xml') || name.includes('code')) {
+    return 'code';
+  }
+  if (name.includes('network') || name.includes('ip') || name.includes('subnet')) {
+    return 'network';
+  }
+  if (name.includes('database') || name.includes('sql')) {
+    return 'database';
+  }
+  if (name.includes('docker') || name.includes('container')) {
+    return 'server';
+  }
+  if (name.includes('regex') || name.includes('text')) {
+    return 'wrench';
+  }
+  if (name.includes('converter') || name.includes('transform')) {
+    return 'gear';
+  }
 
-  return 'wrench' // default
-})
+  return 'wrench'; // default
+});
 </script>
 
 <template>

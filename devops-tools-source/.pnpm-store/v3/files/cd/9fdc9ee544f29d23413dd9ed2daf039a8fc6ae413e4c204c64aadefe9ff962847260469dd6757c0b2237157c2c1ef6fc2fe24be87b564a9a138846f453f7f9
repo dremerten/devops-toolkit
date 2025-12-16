@@ -1,0 +1,2 @@
+import{list as r}from"./wordLists/english.wordlist.js";import{validateEntropyLength as o,getByteArrayFromHexString as t,bytesToBinary as i,getChecksumBin as n,getIntegerFromBin as a}from"./common.js";function m(m,s=r){if(o(m.length),!m.match(/^[a-zA-Z0-9]+$/))throw new Error("[bip39] Invalid entropy: it should be an hexadecimal string (char from: [a-zA-Z0-9])");const e=t(m);return((i(e)+n(e)).match(/(.{1,11})/g)??[]).map((r=>s.words[a(r)])).join(s.spacer)}export{m as entropyToMnemonic};
+//# sourceMappingURL=entropy.js.map

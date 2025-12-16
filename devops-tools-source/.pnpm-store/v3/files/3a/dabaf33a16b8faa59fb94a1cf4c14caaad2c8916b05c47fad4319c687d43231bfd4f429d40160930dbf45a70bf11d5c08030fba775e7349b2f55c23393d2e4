@@ -1,0 +1,30 @@
+{
+  "name": "oui-data",
+  "version": "1.0.10",
+  "author": "silverwind <me@silverwind.io>",
+  "description": "IEEE OUI database as JSON",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/silverwind/oui-data.git"
+  },
+  "license": "BSD-2-Clause",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./index.json",
+  "exports": "./index.json",
+  "files": [
+    "./index.json"
+  ],
+  "devDependencies": {
+    "country-data": "0.0.31",
+    "eslint": "8.52.0",
+    "eslint-config-silverwind": "79.0.4",
+    "fetch-enhanced": "12.0.0",
+    "json-stable-stringify": "1.0.2",
+    "node-fetch": "3.3.2",
+    "updates": "15.0.3",
+    "versions": "12.0.0",
+    "vitest": "0.34.6",
+    "vitest-config-silverwind": "3.0.0"
+  }
+}

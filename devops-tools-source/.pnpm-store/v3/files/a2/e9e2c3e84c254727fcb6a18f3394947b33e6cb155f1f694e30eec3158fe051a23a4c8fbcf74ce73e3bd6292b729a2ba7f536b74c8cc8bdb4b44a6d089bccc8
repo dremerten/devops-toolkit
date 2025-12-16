@@ -1,0 +1,1 @@
+{"version":3,"file":"any-character.js","sourceRoot":"","sources":["../src/any-character.ts"],"names":[],"mappings":";;;;;;;;;AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,QAAQ,CAAA;AAE7B;;;GAGG;AACH,MAAM,OAAO,gBAAiB,SAAQ,IAAI;IAA1C;;QACkB,UAAK,GAAW,eAAe,CAAA;IAKjD,CAAC;IAHO,UAAU;;YACd,MAAM,IAAI,CAAC,WAAW,CAAC,IAAI,CAAC,KAAK,EAAE,EAAE,KAAK,EAAE,CAAC,EAAE,CAAC,CAAA;QAClD,CAAC;KAAA;CACF"}

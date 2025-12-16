@@ -1,0 +1,69 @@
+{
+  "name": "unocss-preset-scrollbar",
+  "version": "0.2.1",
+  "packageManager": "pnpm@6.32.3",
+  "description": "unocss preset for scrollbar",
+  "keywords": [
+    "unocss",
+    "unocss-preset",
+    "scrollbar",
+    "unocss-preset-scrollbar"
+  ],
+  "homepage": "https://github.com/action-hong/unocss-preset-scrollbar#readme",
+  "bugs": {
+    "url": "https://github.com/action-hong/unocss-preset-scrollbar/issues"
+  },
+  "license": "MIT",
+  "author": "kkopite <kkopitehong@foxmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/action-hong/unocss-preset-scrollbar.git"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "peerDependencies": {
+    "unocss": ">= 0.31.13 < 1"
+  },
+  "dependencies": {
+    "@unocss/preset-mini": "^0.31.13"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^0.20.7",
+    "@antfu/ni": "^0.14.0",
+    "@babel/types": "^7.17.0",
+    "@types/node": "^17.0.26",
+    "@unocss/autocomplete": "^0.31.13",
+    "bumpp": "^7.1.1",
+    "eslint": "^8.14.0",
+    "esno": "^0.14.1",
+    "pnpm": "^6.32.9",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.6.3",
+    "unbuild": "^0.7.4",
+    "unocss": "^0.31.13",
+    "vite": "^2.9.5",
+    "vitest": "^0.9.4"
+  },
+  "scripts": {
+    "build": "rimraf dist && unbuild",
+    "dev": "unbuild --stub",
+    "lint": "eslint .",
+    "release": "bumpp --commit --push --tag && pnpm publish",
+    "start": "esno src/index.ts",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "readme": "# unocss-preset-scrollbar\r\n\r\n[![NPM version](https://img.shields.io/npm/v/unocss-preset-scrollbar?color=a1b858&label=)](https://www.npmjs.com/package/unocss-preset-scrollbar) ![npm](https://img.shields.io/npm/dw/unocss-preset-scrollbar)\r\n\r\na [unocss](https://github.com/unocss/unocss) preset for scrollbar, here is a [demo](https://stackblitz.com/edit/vitejs-vite-gyun7j?file=src/components/HelloWorld.vue)\r\n\r\nEnglish | [简体中文](./README.zh-CN.md)\r\n\r\n## Installation\r\n\r\n```bash\r\nnpm i unocss-preset-scrollbar unocss -D\r\n```\r\n\r\n## Usage\r\n\r\n```ts\r\n// unocss.config.ts\r\nimport { defineConfig, presetAttributify, presetUno } from 'unocss'\r\nimport { presetScrollbar } from 'unocss-preset-scrollbar'\r\n\r\nexport default defineConfig({\r\n  presets: [\r\n    presetUno(),\r\n    presetAttributify(),\r\n    presetScrollbar({\r\n      // config\r\n    }),\r\n  ],\r\n})\r\n```\r\n\r\n```html\r\n<div \r\n  class=\"scrollbar scrollbar-rounded scrollbar-w-4px scrollbar-radius-2 scrollbar-track-radius-4 scrollbar-thumb-radius-4\"\r\n/>\r\n```\r\n\r\nit will generate below css:\r\n\r\n```css\r\n/* layer: shortcuts */\r\n.scrollbar::-webkit-scrollbar{width:var(--scrollbar-width);height:var(--scrollbar-height);}\r\n.scrollbar{overflow:auto;scrollbar-color:var(--scrollbar-thumb) var(--scrollbar-track);--scrollbar-track:#f5f5f5;--scrollbar-thumb:#ddd;--scrollbar-width:8px;--scrollbar-height:8px;--scrollbar-track-radius:4px;--scrollbar-thumb-radius:4px;}\r\n.scrollbar-rounded::-webkit-scrollbar-thumb{border-radius:var(--scrollbar-thumb-radius);}\r\n.scrollbar-rounded::-webkit-scrollbar-track{border-radius:var(--scrollbar-track-radius);}\r\n.scrollbar::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb);}\r\n.scrollbar::-webkit-scrollbar-track{background-color:var(--scrollbar-track);}\r\n/* layer: default */\r\n.scrollbar-radius-2{--scrollbar-track-radius:0.5rem;--scrollbar-thumb-radius:0.5rem;}\r\n.scrollbar-thumb-radius-4{--scrollbar-thumb-radius:1rem;}\r\n.scrollbar-track-radius-4{--scrollbar-track-radius:1rem;}\r\n.scrollbar-w-4px{--scrollbar-width:4px;}\r\n```\r\n\r\nyou can also use [`Attributify Mode`](https://github.com/unocss/unocss/tree/main/packages/preset-attributify):\r\n\r\n```html\r\n<div\r\n  scrollbar=\"~ rounded\"\r\n/>\r\n```\r\n\r\nor use `@apply`\r\n\r\n```diff\r\nimport { defineConfig, presetAttributify, presetUno, transformerDirectives } from 'unocss'\r\nimport { presetScrollbar } from 'unocss-preset-scrollbar'\r\n\r\nexport default defineConfig({\r\n  presets: [\r\n    presetUno(),\r\n    presetAttributify(),\r\n    presetScrollbar({\r\n    }),\r\n  ],\r\n+  transformers: [\r\n+    transformerDirectives(),\r\n+  ],\r\n})\r\n```\r\n\r\n```css\r\n.my-custom-scrollbar {\r\n  @apply scrollbar scrollbar-rounded\r\n}\r\n```\r\n\r\n## Configurations\r\n\r\n|Field|Default|Description|\r\n|--|--|--|\r\n|`scrollbarWidth`|`8px`|default scrollbar width|\r\n|`scrollbarHeight`|`8px`|default scrollbar height|\r\n|`scrollbarTrackRadius`|`4px`|default scrollbar track radius|\r\n|`scrollbarThumbRadius`|`4px`|default scrollbar thumb radius|\r\n|`scrollbarTrackColor`|`#f5f5f5`|default scrollbar track background color|\r\n|`scrollbarThumbColor`|`#ddd`|default scrollbar thumb background color|\r\n|`numberToUnit`|``value => `${value / 4}rem` ``| number to unit\r\n|`varPrefix`|`''`|the css variable prefix of this preset \r\n\r\n\r\nfor example\r\n\r\n```html\r\n<div class=\"scrollbar scrollbar-w-4\">\r\n```\r\n\r\nif we use default options, `scrollbar-w-4` will generate `--scrollbar-width: 1rem`\r\n\r\nif we set custom `numberToUnit`:\r\n\r\n```ts\r\nexport default defineConfig({\r\n  presets: [\r\n    presetUno(),\r\n    presetScrollbar({\r\n      numberToUnit: value => `${value}px`,\r\n    }),\r\n  ],\r\n})\r\n```\r\n\r\nwill generate `--scrollbar-width: 4px`\r\n\r\n## Utilities\r\n\r\n### rounded\r\n\r\n`scrollbar-rounded`\r\n\r\nMake thumb and track have rounded corners\r\n\r\n### color\r\n\r\n`scrollbar-(track|thumb)-<color>`\r\n\r\nset track or thumb background color\r\n\r\n### size\r\n\r\n`scrollbar-(radius|w|h|track-radius|thumb-radius)-(\\d+?)([a-zA-Z]*?)`\r\n\r\n|type|description|\r\n|--|--|\r\n|radius|set thumb radius and track radius|\r\n|w|[set scrollbar width](https://developer.mozilla.org/en-US/docs/Web/CSS/::-webkit-scrollbar)|\r\n|h|[set scrollbar height](https://developer.mozilla.org/en-US/docs/Web/CSS/::-webkit-scrollbar)|\r\n|track-radius|set track radius|\r\n|thumb-radius|set thumb radius|\r\n\r\n**Attention,** if it ends with number, the preset will use numberToUnit to generate length with number as params, Otherwise it will use the captured length information directly\r\n\r\nfor example:\r\n- `scrollbar-w-4` will be `--scrollbar-width: 1rem`\r\n- `scrollbar-w-4px` will be `--scrollbar-width: 4px`\r\n- `scrollbar-w-4rem` will be `--scrollbar-width: 4rem`\r\n\r\n## other\r\n\r\nbase [starter-ts](https://github.com/antfu/starter-ts)\r\n\r\n## License\r\n\r\n[MIT](./LICENSE) License © 2021 [kkopite](https://github.com/action-hong)\r\n"
+}

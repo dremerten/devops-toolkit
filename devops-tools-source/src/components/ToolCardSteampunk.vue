@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { NIcon } from 'naive-ui'
-import type { Tool } from '@/tools'
+import { NIcon } from 'naive-ui';
+import type { Tool } from '@/tools';
 
 defineProps<{
   tool: Tool
-}>()
+}>();
 
 const emit = defineEmits<{
   click: []
-}>()
+}>();
 </script>
 
 <template>
@@ -21,9 +21,9 @@ const emit = defineEmits<{
 
     <!-- Tool icon silhouette -->
     <div class="tool-icon-wrapper">
-      <n-icon :size="48" class="tool-icon-silhouette">
+      <NIcon :size="48" class="tool-icon-silhouette">
         <component :is="tool.icon" />
-      </n-icon>
+      </NIcon>
     </div>
 
     <!-- Tool name on brass plate -->
@@ -37,7 +37,9 @@ const emit = defineEmits<{
     </div>
 
     <!-- NEW badge with copper styling -->
-    <div v-if="tool.isNew" class="new-badge">NEW</div>
+    <div v-if="tool.isNew" class="new-badge">
+      NEW
+    </div>
 
     <!-- Magnetic attachment indicator -->
     <div class="magnetic-indicator" />

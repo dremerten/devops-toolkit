@@ -1,7 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router';
-import DemoHome from './demo-home.page.vue';
 import SteampunkDemo from '../../pages/SteampunkDemo.page.vue';
 import PegboardDemo from '../../pages/PegboardDemo.page.vue';
+import DemoHome from './demo-home.page.vue';
 
 const demoPages = import.meta.glob('../*/*.demo.vue', { eager: true });
 
