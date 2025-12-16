@@ -27,15 +27,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        run: npm install -g pnpm
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: devops-tools-source/package-lock.json
-
-      - name: Install pnpm
-        run: npm install -g pnpm
+          cache: 'pnpm'
+          cache-dependency-path: devops-tools-source/pnpm-lock.yaml
 
       - name: Install dependencies
         working-directory: devops-tools-source
