@@ -82,13 +82,19 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Generate image tags
+      - name: Generate version and metadata
         id: meta
         run: |
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-          echo "tags=${{ env.DOCKER_IMAGE }}:${SHORT_SHA},${{ env.DOCKER_IMAGE }}:latest,${{ env.DOCKER_IMAGE }}:${TIMESTAMP}" >> $GITHUB_OUTPUT
+          VERSION="1.0.${{ github.run_number }}"
+          DEPLOYMENT_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          echo "tags=${{ env.DOCKER_IMAGE }}:${SHORT_SHA},${{ env.DOCKER_IMAGE }}:latest,${{ env.DOCKER_IMAGE }}:${VERSION}" >> $GITHUB_OUTPUT
           echo "short-sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "deployment-date=${DEPLOYMENT_DATE}" >> $GITHUB_OUTPUT
+          echo "build-number=${{ github.run_number }}" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
         id: build
@@ -98,12 +104,18 @@ jobs:
           file: ./devops-tools-source/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            VITE_DEPLOYMENT_DATE=${{ steps.meta.outputs.deployment-date }}
+            VITE_BUILD_NUMBER=${{ steps.meta.outputs.build-number }}
+            VITE_VERCEL_GIT_COMMIT_SHA=${{ github.sha }}
+            APP_VERSION=${{ steps.meta.outputs.version }}
           cache-from: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache
           cache-to: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache,mode=max
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
+            org.opencontainers.image.version=${{ steps.meta.outputs.version }}
 
       - name: Image build summary
         run: |

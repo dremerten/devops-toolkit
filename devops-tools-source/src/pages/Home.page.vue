@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { IconDragDrop, IconHeart } from '@tabler/icons-vue';
+import { IconDragDrop } from '@tabler/icons-vue';
 import { useHead } from '@vueuse/head';
 import { computed } from 'vue';
 import Draggable from 'vuedraggable';
-import ColoredCard from '../components/ColoredCard.vue';
 import ToolCard from '../components/ToolCard.vue';
 import { useToolStore } from '@/tools/tools.store';
-import { config } from '@/config';
 
 const toolStore = useToolStore();
 
@@ -24,7 +22,6 @@ function onUpdateFavoriteTools() {
 <template>
   <div class="pt-50px">
     <div class="grid-wrapper">
-
       <transition name="height">
         <div v-if="toolStore.favoriteTools.length > 0">
           <h3 class="mb-5px mt-25px text-neutral-400 font-500">

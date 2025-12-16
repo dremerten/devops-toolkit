@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import { detectEnvironment } from '@/utils/runtime-env';
-import { getEnvColorScheme, getEnvBadgeStyle } from '@/utils/env-colors';
+import { getEnvBadgeStyle } from '@/utils/env-colors';
 
-const envColors = computed(() => getEnvColorScheme());
 const envDisplay = computed(() => {
   const env = detectEnvironment();
-  if (env === 'production') return 'PROD';
-  if (env === 'staging') return 'STAGING';
-  if (env === 'qa') return 'QA';
-  if (env === 'development') return 'DEV';
+  if (env === 'production') {
+    return 'PROD';
+  }
+  if (env === 'staging') {
+    return 'STAGING';
+  }
+  if (env === 'qa') {
+    return 'QA';
+  }
+  if (env === 'development') {
+    return 'DEV';
+  }
   return null;
 });
 

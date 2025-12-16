@@ -14,6 +14,18 @@ export const config = figue({
       default: '',
       env: 'VITE_VERCEL_GIT_COMMIT_SHA',
     },
+    deploymentDate: {
+      doc: 'Application deployment date',
+      format: 'string',
+      default: '',
+      env: 'VITE_DEPLOYMENT_DATE',
+    },
+    buildNumber: {
+      doc: 'Application build number',
+      format: 'string',
+      default: '',
+      env: 'VITE_BUILD_NUMBER',
+    },
     baseUrl: {
       doc: 'Application base url',
       format: 'string',

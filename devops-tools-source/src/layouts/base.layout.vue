@@ -1,11 +1,9 @@
 <script lang="ts" setup>
-import { onMounted } from 'vue';
-import { NIcon, useThemeVars } from 'naive-ui';
-
 import { RouterLink } from 'vue-router';
-import { Heart, Home2, Menu2 } from '@vicons/tabler';
+import { Home2, Menu2 } from '@vicons/tabler';
 
 import { storeToRefs } from 'pinia';
+import { NIcon } from 'naive-ui';
 import HeroGradient from '../assets/hero-gradient.svg?component';
 import MenuLayout from '../components/MenuLayout.vue';
 import NavbarButtons from '../components/NavbarButtons.vue';
@@ -13,27 +11,51 @@ import { useStyleStore } from '@/stores/style.store';
 import { config } from '@/config';
 import type { ToolCategory } from '@/tools/tools.types';
 import { useToolStore } from '@/tools/tools.store';
-import { useTracker } from '@/modules/tracker/tracker.services';
 import CollapsibleToolMenu from '@/components/CollapsibleToolMenu.vue';
 import { getEnvColorScheme } from '@/utils/env-colors';
 import { detectEnvironment } from '@/utils/runtime-env';
 
-const themeVars = useThemeVars();
 const styleStore = useStyleStore();
 const version = config.app.version;
-const commitSha = config.app.lastCommitSha.slice(0, 7);
+const deploymentDate = config.app.deploymentDate;
+const buildNumber = config.app.buildNumber;
 
-const { tracker } = useTracker();
+const formattedDeploymentDate = computed(() => {
+  if (!deploymentDate) {
+    return '';
+  }
+  try {
+    return new Date(deploymentDate).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+  catch {
+    return deploymentDate;
+  }
+});
+
 const { t } = useI18n();
 
 const currentEnvironment = computed(() => detectEnvironment());
 
 const environmentDisplay = computed(() => {
   const env = currentEnvironment.value;
-  if (env === 'production') return 'PRODUCTION';
-  if (env === 'staging') return 'STAGING';
-  if (env === 'qa') return 'QA';
-  if (env === 'development') return 'DEVELOPMENT';
+  if (env === 'production') {
+    return 'PRODUCTION';
+  }
+  if (env === 'staging') {
+    return 'STAGING';
+  }
+  if (env === 'qa') {
+    return 'QA';
+  }
+  if (env === 'development') {
+    return 'DEVELOPMENT';
+  }
   return null;
 });
 
@@ -44,17 +66,6 @@ const envBadgeStyle = computed(() => ({
   color: '#ffffff',
   boxShadow: `0 0 20px ${envColors.value.primary}40`,
 }));
-
-// Debug: Log on mount
-onMounted(() => {
-  console.log('[DEBUG] Environment Detection Info:', {
-    hostname: window.location.hostname,
-    href: window.location.href,
-    detected: currentEnvironment.value,
-    displayName: environmentDisplay.value,
-    colors: envColors.value,
-  });
-});
 
 const toolStore = useToolStore();
 const { favoriteTools, toolsByCategory } = storeToRefs(toolStore);
@@ -70,68 +81,74 @@ const tools = computed<ToolCategory[]>(() => [
   <div class="environment-wrapper">
     <div v-if="environmentDisplay" class="env-top-bar" :style="{ backgroundColor: envColors.primary }">
       <div class="env-top-bar-content">
-        <span class="env-indicator-dot" :style="{ backgroundColor: '#fff' }"></span>
+        <span class="env-indicator-dot" :style="{ backgroundColor: '#fff' }" />
         {{ environmentDisplay }} ENVIRONMENT
       </div>
     </div>
     <MenuLayout class="menu-layout" :class="{ isSmallScreen: styleStore.isSmallScreen }">
       <template #sider>
-      <RouterLink to="/" class="hero-wrapper">
-        <HeroGradient class="gradient" />
-        <div class="text-wrapper">
-          <div class="title">
-            DEVOPS TOOLKIT
+        <RouterLink to="/" class="hero-wrapper">
+          <HeroGradient class="gradient" />
+          <div class="text-wrapper">
+            <div class="title">
+              DEVOPS TOOLKIT
+            </div>
+            <div class="divider" />
+            <div v-if="environmentDisplay" class="environment-badge" :style="envBadgeStyle">
+              {{ environmentDisplay }}
+            </div>
           </div>
-          <div class="divider" />
-          <div v-if="environmentDisplay" class="environment-badge" :style="envBadgeStyle">
-            {{ environmentDisplay }}
+        </RouterLink>
+
+        <div class="sider-content">
+          <div v-if="styleStore.isSmallScreen" flex flex-col items-center>
+            <div flex justify-center>
+              <NavbarButtons />
+            </div>
+          </div>
+
+          <CollapsibleToolMenu :tools-by-category="tools" />
+
+          <div class="footer">
+            <div class="footer-version">
+              DevOps Toolkit v{{ version }}
+            </div>
+            <div v-if="buildNumber" class="footer-build">
+              Build #{{ buildNumber }}
+            </div>
+            <div v-if="formattedDeploymentDate" class="footer-deployment">
+              Deployed: {{ formattedDeploymentDate }}
+            </div>
           </div>
         </div>
-      </RouterLink>
+      </template>
 
-      <div class="sider-content">
-        <div v-if="styleStore.isSmallScreen" flex flex-col items-center>
-          <div flex justify-center>
-            <NavbarButtons />
-          </div>
-        </div>
-
-        <CollapsibleToolMenu :tools-by-category="tools" />
-
-        <div class="footer">
-          <div>
-            DevOps Toolkit v{{ version }}
-          </div>
-        </div>
-      </div>
-    </template>
-
-    <template #content>
-      <div flex items-center justify-center gap-2>
-        <c-button
-          circle
-          variant="text"
-          :aria-label="$t('home.toggleMenu')"
-          @click="styleStore.isMenuCollapsed = !styleStore.isMenuCollapsed"
-        >
-          <NIcon size="25" :component="Menu2" />
-        </c-button>
-
-        <c-tooltip :tooltip="$t('home.home')" position="bottom">
-          <c-button to="/" circle variant="text" :aria-label="$t('home.home')">
-            <NIcon size="25" :component="Home2" />
+      <template #content>
+        <div flex items-center justify-center gap-2>
+          <c-button
+            circle
+            variant="text"
+            :aria-label="$t('home.toggleMenu')"
+            @click="styleStore.isMenuCollapsed = !styleStore.isMenuCollapsed"
+          >
+            <NIcon size="25" :component="Menu2" />
           </c-button>
-        </c-tooltip>
 
-        <command-palette />
+          <c-tooltip :tooltip="$t('home.home')" position="bottom">
+            <c-button to="/" circle variant="text" :aria-label="$t('home.home')">
+              <NIcon size="25" :component="Home2" />
+            </c-button>
+          </c-tooltip>
 
-        <div>
-          <NavbarButtons v-if="!styleStore.isSmallScreen" />
+          <command-palette />
+
+          <div>
+            <NavbarButtons v-if="!styleStore.isSmallScreen" />
+          </div>
         </div>
-      </div>
-      <slot />
-    </template>
-  </MenuLayout>
+        <slot />
+      </template>
+    </MenuLayout>
   </div>
 </template>
 
@@ -215,6 +232,23 @@ const tools = computed<ToolCategory[]>(() => [
   color: #838587;
   margin-top: 20px;
   padding: 20px 0;
+
+  .footer-version {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .footer-build {
+    font-size: 11px;
+    opacity: 0.8;
+    margin-bottom: 2px;
+  }
+
+  .footer-deployment {
+    font-size: 10px;
+    opacity: 0.7;
+  }
 }
 
 .sider-content {

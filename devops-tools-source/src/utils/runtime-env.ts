@@ -3,7 +3,7 @@
  * This runs in the browser, not at build time
  */
 
-import { ref, computed, readonly } from 'vue';
+import { computed, readonly, ref } from 'vue';
 
 export type Environment = 'production' | 'staging' | 'qa' | 'development';
 
@@ -32,12 +32,6 @@ export function detectEnvironment(): Environment {
   else if (hostname.startsWith('dev-') || hostname === 'localhost' || hostname.startsWith('127.0.0.1') || hostname.startsWith('192.168')) {
     detectedEnv = 'development';
   }
-
-  // Debug logging (remove in production if needed)
-  console.log('[Environment Detection]', {
-    hostname,
-    detected: detectedEnv,
-  });
 
   return detectedEnv;
 }

@@ -2,17 +2,17 @@ import type { GlobalThemeOverrides } from 'naive-ui';
 import { detectEnvironment } from './runtime-env';
 
 export interface EnvColorScheme {
-  primary: string;
-  primaryHover: string;
-  primaryPressed: string;
-  accentColor: string;
-  borderColor: string;
-  label: string;
+  primary: string
+  primaryHover: string
+  primaryPressed: string
+  accentColor: string
+  borderColor: string
+  label: string
 }
 
 export const ENV_COLOR_SCHEMES: Record<string, EnvColorScheme> = {
   production: {
-    primary: '#dc2626',        // Red - Production danger
+    primary: '#dc2626', // Red - Production danger
     primaryHover: '#ef4444',
     primaryPressed: '#991b1b',
     accentColor: '#fecaca',
@@ -20,7 +20,7 @@ export const ENV_COLOR_SCHEMES: Record<string, EnvColorScheme> = {
     label: 'PRODUCTION',
   },
   staging: {
-    primary: '#f59e0b',        // Amber - Staging warning
+    primary: '#f59e0b', // Amber - Staging warning
     primaryHover: '#fbbf24',
     primaryPressed: '#d97706',
     accentColor: '#fcd34d',
@@ -28,7 +28,7 @@ export const ENV_COLOR_SCHEMES: Record<string, EnvColorScheme> = {
     label: 'STAGING',
   },
   qa: {
-    primary: '#0ea5e9',        // Cyan - QA info
+    primary: '#0ea5e9', // Cyan - QA info
     primaryHover: '#38bdf8',
     primaryPressed: '#0284c7',
     accentColor: '#7dd3fc',
@@ -36,7 +36,7 @@ export const ENV_COLOR_SCHEMES: Record<string, EnvColorScheme> = {
     label: 'QA',
   },
   development: {
-    primary: '#10b981',        // Emerald - Development safe
+    primary: '#10b981', // Emerald - Development safe
     primaryHover: '#34d399',
     primaryPressed: '#059669',
     accentColor: '#6ee7b7',
