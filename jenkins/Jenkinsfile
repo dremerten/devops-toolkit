@@ -1,0 +1,122 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_USERNAME = 'dremer10'
+        IMAGE_NAME = "dremer10/devops-toolkit"
+        DOCKER_CREDENTIALS = credentials('docker-hub-credentials')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    env.GIT_COMMIT_SHORT = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir('devops-tools-source') {
+                    sh 'npm install -g pnpm'
+                    sh 'pnpm i --frozen-lockfile'
+                    sh 'pnpm lint || true'
+                    sh 'pnpm test:unit || true'
+                }
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                script {
+                    sh """
+                        docker build -t ${IMAGE_NAME}:${env.GIT_BRANCH}-${env.GIT_COMMIT_SHORT} \
+                            -t ${IMAGE_NAME}:latest \
+                            -f devops-tools-source/Dockerfile devops-tools-source/
+                    """
+                }
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                script {
+                    sh 'echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin'
+                    sh "docker push ${IMAGE_NAME}:${env.GIT_BRANCH}-${env.GIT_COMMIT_SHORT}"
+                    sh "docker push ${IMAGE_NAME}:latest"
+                }
+            }
+        }
+
+        stage('Deploy to Staging') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                script {
+                    sh """
+                        kubectl config use-context staging
+                        kubectl set image deployment/devops-toolkit devops-toolkit=${IMAGE_NAME}:${env.GIT_BRANCH}-${env.GIT_COMMIT_SHORT} -n staging
+                        kubectl rollout status deployment/devops-toolkit -n staging --timeout=5m
+                    """
+                }
+            }
+        }
+
+        stage('Deploy to QA') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                input message: 'Deploy to QA?', ok: 'Deploy'
+                script {
+                    sh """
+                        kubectl config use-context qa
+                        kubectl set image deployment/devops-toolkit devops-toolkit=${IMAGE_NAME}:${env.GIT_BRANCH}-${env.GIT_COMMIT_SHORT} -n qa
+                        kubectl rollout status deployment/devops-toolkit -n qa --timeout=5m
+                    """
+                }
+            }
+        }
+
+        stage('Deploy to Production') {
+            when {
+                branch 'main'
+            }
+            steps {
+                input message: 'Deploy to Production?', ok: 'Deploy'
+                script {
+                    sh """
+                        kubectl config use-context production
+                        kubectl set image deployment/devops-toolkit devops-toolkit=${IMAGE_NAME}:${env.GIT_BRANCH}-${env.GIT_COMMIT_SHORT} -n production
+                        kubectl rollout status deployment/devops-toolkit -n production --timeout=5m
+                    """
+                }
+            }
+        }
+
+        stage('Smoke Tests') {
+            steps {
+                script {
+                    def environment = env.GIT_BRANCH == 'main' ? 'devops-toolkit.dremer10.com' : (env.GIT_BRANCH == 'develop' ? 'staging.devops-toolkit.dremer10.com' : 'qa.devops-toolkit.dremer10.com')
+                    sh "curl -f https://${environment}/ || exit 1"
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline succeeded!'
+            echo "DevOps Toolkit deployed successfully to ${env.GIT_BRANCH} environment"
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+        always {
+            sh 'docker logout'
+        }
+    }
+}

@@ -1,0 +1,116 @@
+---
+# Production Environment
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: devops-toolkit-production
+  namespace: production
+  annotations:
+    # Start with staging, switch to letsencrypt-prod after verification
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - devops-toolkit.dremer10.com
+    secretName: devops-toolkit-production-tls
+  rules:
+  - host: devops-toolkit.dremer10.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: devops-toolkit
+            port:
+              number: 80
+---
+# Staging Environment
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: devops-toolkit-staging
+  namespace: staging
+  annotations:
+    # Start with staging, switch to letsencrypt-prod after verification
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - staging-devops-toolkit.dremer10.com
+    secretName: devops-toolkit-staging-tls
+  rules:
+  - host: staging-devops-toolkit.dremer10.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: devops-toolkit
+            port:
+              number: 80
+---
+# QA Environment
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: devops-toolkit-qa
+  namespace: qa
+  annotations:
+    # Start with staging, switch to letsencrypt-prod after verification
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - qa-devops-toolkit.dremer10.com
+    secretName: devops-toolkit-qa-tls
+  rules:
+  - host: qa-devops-toolkit.dremer10.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: devops-toolkit
+            port:
+              number: 80
+---
+# Dev Environment
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: devops-toolkit-dev
+  namespace: dev
+  annotations:
+    # Start with staging, switch to letsencrypt-prod after verification
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - dev-devops-toolkit.dremer10.com
+    secretName: devops-toolkit-dev-tls
+  rules:
+  - host: dev-devops-toolkit.dremer10.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: devops-toolkit
+            port:
+              number: 80

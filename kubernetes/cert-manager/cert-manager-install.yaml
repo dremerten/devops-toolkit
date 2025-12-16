@@ -1,0 +1,51 @@
+# cert-manager ClusterIssuer Configuration
+#
+# This file is a TEMPLATE that uses environment variables.
+# Do NOT apply directly with kubectl!
+#
+# Usage:
+#   1. Set EMAIL in .env file
+#   2. Run: ./scripts/apply-cert-manager.sh
+#
+# The script will substitute ${EMAIL} with the actual value from .env
+#
+# IMPORTANT: Always test with staging issuer first to avoid Let's Encrypt rate limits!
+# After staging certificates work, switch ingresses to use letsencrypt-prod
+
+---
+# ClusterIssuer for Let's Encrypt (Staging - ALWAYS TEST WITH THIS FIRST)
+# Staging certificates are not trusted by browsers but verify the process works
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    # Staging server - no rate limits, perfect for testing
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: ${EMAIL}
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+---
+# ClusterIssuer for Let's Encrypt (Production - USE ONLY AFTER STAGING SUCCEEDS)
+# Production certificates are trusted by browsers
+# IMPORTANT: Let's Encrypt has strict rate limits (50 certs per week per domain)
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    # Production server - has rate limits, use only after staging works
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: ${EMAIL}
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
