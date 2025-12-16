@@ -45,16 +45,16 @@ const currentEnvironment = computed(() => detectEnvironment());
 const environmentDisplay = computed(() => {
   const env = currentEnvironment.value;
   if (env === 'production') {
-    return "ANDRE'S PRODUCTION";
+    return 'ANDRE\'S PRODUCTION';
   }
   if (env === 'staging') {
-    return "ANDRE'S STAGING";
+    return 'ANDRE\'S STAGING';
   }
   if (env === 'qa') {
-    return "ANDRE'S QA";
+    return 'ANDRE\'S QA';
   }
   if (env === 'development') {
-    return "ANDRE'S DEVELOPMENT";
+    return 'ANDRE\'S DEVELOPMENT';
   }
   return null;
 });

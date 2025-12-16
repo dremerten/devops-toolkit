@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { tools } from '@/tools'
-import PegboardBackground from '@/components/PegboardBackground.vue'
-import ToolCardModern from '@/components/ToolCardModern.vue'
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
+import { tools } from '@/tools';
+import PegboardBackground from '@/components/PegboardBackground.vue';
+import ToolCardModern from '@/components/ToolCardModern.vue';
 
-const router = useRouter()
+const router = useRouter();
 
 // Select 12 diverse tools for the demo
 const demoTools = [
@@ -20,7 +20,7 @@ const demoTools = [
   tools.find(t => t.path.includes('ipv4-subnet-calculator')),
   tools.find(t => t.path.includes('docker-run')),
   tools.find(t => t.path.includes('sql-prettify')),
-].filter(Boolean)
+].filter(Boolean);
 
 // Silhouette type mapping for specific tools
 const silhouetteMap: Record<string, string> = {
@@ -36,15 +36,15 @@ const silhouetteMap: Record<string, string> = {
   'ipv4-subnet-calculator': 'network',
   'docker-run': 'server',
   'sql-prettify': 'database',
-}
+};
 
 function getSilhouetteType(toolPath: string): string {
-  const key = Object.keys(silhouetteMap).find(k => toolPath.includes(k))
-  return key ? silhouetteMap[key] : 'wrench'
+  const key = Object.keys(silhouetteMap).find(k => toolPath.includes(k));
+  return key ? silhouetteMap[key] : 'wrench';
 }
 
 function navigateToTool(toolPath: string) {
-  router.push(toolPath)
+  router.push(toolPath);
 }
 </script>
 
@@ -52,8 +52,12 @@ function navigateToTool(toolPath: string) {
   <PegboardBackground>
     <!-- Modern Header -->
     <div class="demo-header">
-      <h1 class="title">DevOps Toolkit.</h1>
-      <p class="subtitle">Essential tools for modern development teams.</p>
+      <h1 class="title">
+        DevOps Toolkit.
+      </h1>
+      <p class="subtitle">
+        Essential tools for modern development teams.
+      </p>
     </div>
 
     <!-- Tools Grid -->

@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { tools } from '@/tools'
-import MagneticBoardBackground from '@/components/MagneticBoardBackground.vue'
-import ToolCardSteampunk from '@/components/ToolCardSteampunk.vue'
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
+import { tools } from '@/tools';
+import MagneticBoardBackground from '@/components/MagneticBoardBackground.vue';
+import ToolCardSteampunk from '@/components/ToolCardSteampunk.vue';
 
-const router = useRouter()
+const router = useRouter();
 
 // Get first 12 tools for demo
-const demoTools = tools.slice(0, 12)
+const demoTools = tools.slice(0, 12);
 
 function navigateToTool(toolPath: string) {
-  router.push(toolPath)
+  router.push(toolPath);
 }
 </script>
 
@@ -18,8 +18,12 @@ function navigateToTool(toolPath: string) {
   <MagneticBoardBackground>
     <!-- Header -->
     <div class="demo-header">
-      <h1 class="title">DevOps Toolkit</h1>
-      <p class="subtitle">Steampunk Workshop Edition</p>
+      <h1 class="title">
+        DevOps Toolkit
+      </h1>
+      <p class="subtitle">
+        Steampunk Workshop Edition
+      </p>
       <div class="brass-divider" />
     </div>
 

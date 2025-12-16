@@ -108,18 +108,18 @@ const toolIconMap: Record<string, string> = {
   'mac-address-lookup': 'mac-lookup',
   'xml-formatter': 'xml',
   'yaml-viewer': 'yaml',
-}
+};
 
 function getSilhouetteType(toolPath: string): string {
   // Find exact match from tool path
   for (const [toolKey, icon] of Object.entries(toolIconMap)) {
     if (toolPath.includes(toolKey)) {
-      return icon
+      return icon;
     }
   }
 
   // Fallback to default if no match (shouldn't happen)
-  return 'wrench'
+  return 'wrench';
 }
 </script>
 
@@ -127,8 +127,12 @@ function getSilhouetteType(toolPath: string): string {
   <PegboardBackground>
     <!-- Modern Header -->
     <div class="demo-header">
-      <h1 class="title">DevOps Toolkit.</h1>
-      <p class="subtitle">Essential tools for modern development workflows.</p>
+      <h1 class="title">
+        DevOps Toolkit.
+      </h1>
+      <p class="subtitle">
+        Essential tools for modern development workflows.
+      </p>
     </div>
 
     <div class="grid-wrapper">

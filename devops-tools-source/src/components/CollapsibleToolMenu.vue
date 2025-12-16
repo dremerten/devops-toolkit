@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useStorage } from '@vueuse/core';
-import { useThemeVars } from 'naive-ui';
 import { RouterLink, useRoute } from 'vue-router';
 import MenuIconItem from './MenuIconItem.vue';
 import type { Tool, ToolCategory } from '@/tools/tools.types';
@@ -41,8 +40,6 @@ const menuOptions = computed(() =>
     })),
   })),
 );
-
-const themeVars = useThemeVars();
 </script>
 
 <template>

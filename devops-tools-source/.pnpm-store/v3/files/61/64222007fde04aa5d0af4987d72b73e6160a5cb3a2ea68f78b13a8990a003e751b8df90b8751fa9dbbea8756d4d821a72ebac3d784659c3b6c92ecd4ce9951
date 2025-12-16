@@ -1,0 +1,7 @@
+"use strict";
+/* eslint-disable */
+// Auto generated file, do not modify it!
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.style = void 0;
+exports.style = "\nsvg {\n  background-color: #fff;\n}\n\n.root text,\n.root tspan {\n  font: 12px Arial;\n}\n\n.root path {\n  fill-opacity: 0;\n  stroke-width: 2px;\n  stroke: #000;\n}\n\n.root circle {\n  fill: #6b6659;\n  stroke-width: 2px;\n  stroke: #000;\n}\n\n.anchor text,\n.any-character text {\n  fill: #fff;\n}\n\n.anchor rect,\n.any-character rect {\n  fill: #6b6659;\n}\n\n.escape text,\n.charset-escape text,\n.literal text {\n  fill: #000;\n}\n\n.escape rect,\n.charset-escape rect {\n  fill: #bada55;\n}\n\n.literal rect {\n  fill: #dae9e5;\n}\n\n.charset .charset-box {\n  fill: #cbcbba;\n}\n\n.subexp .subexp-label tspan,\n.charset .charset-label tspan,\n.match-fragment .repeat-label tspan {\n  font-size: 10px;\n}\n\n.repeat-label {\n  cursor: help;\n}\n\n.subexp .subexp-label tspan,\n.charset .charset-label tspan {\n  dominant-baseline: text-after-edge;\n}\n\n.subexp .subexp-box {\n  stroke: #bfbfbf;\n  stroke-dasharray: 6, 2;\n  stroke-width: 2px;\n  fill-opacity: 0;\n}\n\n.quote {\n  fill: #8c8c8c;\n}\n".trim();
+//# sourceMappingURL=style.js.map

@@ -2,7 +2,7 @@
 defineProps<{
   tool: string
   size?: number
-}>()
+}>();
 </script>
 
 <template>
@@ -12,16 +12,8 @@ defineProps<{
     viewBox="0 0 100 100"
     class="tool-silhouette"
   >
-    <!-- Wrench -->
-    <g v-if="tool === 'wrench'">
-      <path
-        d="M85,25 C85,20 82,15 77,13 L65,25 L60,20 L72,8 C70,5 67,3 63,3 C55,3 48,10 48,18 C48,20 48.5,22 49,24 L10,63 L5,68 L5,75 L10,80 L17,80 L22,75 L25,72 L30,77 L35,82 L42,82 L47,77 L42,72 L76,38 C78,38.5 80,39 82,39 C90,39 97,32 97,24 C97,20 95,16 92,13 L80,25 L75,20 L87,8 C85,6 83,5 80,5 L85,25 Z"
-        fill="currentColor"
-      />
-    </g>
-
     <!-- Hammer -->
-    <g v-else-if="tool === 'hammer'">
+    <g v-if="tool === 'hammer'">
       <path
         d="M85,15 L75,25 L70,20 L65,25 L35,55 L15,35 L10,40 L5,45 L15,55 L20,60 L30,70 L40,80 L45,75 L50,70 L40,60 L70,30 L75,35 L80,30 L90,20 L95,15 L90,10 L85,15 Z"
         fill="currentColor"

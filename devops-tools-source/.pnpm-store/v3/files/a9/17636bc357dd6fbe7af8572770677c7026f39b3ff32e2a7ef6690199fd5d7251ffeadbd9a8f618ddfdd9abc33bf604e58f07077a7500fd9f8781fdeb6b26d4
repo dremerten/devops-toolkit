@@ -1,0 +1,47 @@
+{
+  "name": "@regexper/parser",
+  "version": "1.0.0",
+  "description": "Parse regular expression to ast tree",
+  "main": "regexp.js",
+  "module": "regexp.js",
+  "unpkg": "regexp.min.js",
+  "jsdelivr": "regexp.min.js",
+  "files": [
+    "regexp.js",
+    "regexp.min.js"
+  ],
+  "scripts": {
+    "clean": "rimraf *.js",
+    "build:dev": "canopy ./regexp.peg --lang js",
+    "build:umd": "terser -c -o regexp.min.js -- regexp.js",
+    "build": "run-s build:dev build:umd",
+    "prebuild": "run-s clean",
+    "prepare": "run-p build"
+  },
+  "keywords": [
+    "regexp",
+    "regexper",
+    "parse",
+    "parser",
+    "ast"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "canopy": "^0.4.0",
+    "terser": "^5.14.2"
+  },
+  "homepage": "https://github.com/bubkoo/regexper",
+  "bugs": {
+    "url": "https://github.com/bubkoo/regexper/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com/bubkoo/regexper.git",
+    "directory": "packages/parser"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}

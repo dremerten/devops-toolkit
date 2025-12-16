@@ -1,47 +1,56 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { Tool } from '@/tools'
-import ToolSilhouettes from './ToolSilhouettes.vue'
+import { computed } from 'vue';
+import ToolSilhouettes from './ToolSilhouettes.vue';
+import type { Tool } from '@/tools';
 
 const props = defineProps<{
   tool: Tool
   silhouetteType?: string
-}>()
+}>();
 
 const emit = defineEmits<{
   click: []
-}>()
+}>();
 
 // Map tool categories to silhouette types and colors
 const getSilhouetteType = computed(() => {
-  if (props.silhouetteType)
-    return props.silhouetteType
+  if (props.silhouetteType) {
+    return props.silhouetteType;
+  }
 
-  const name = props.tool.name.toLowerCase()
+  const name = props.tool.name.toLowerCase();
 
-  if (name.includes('key') || name.includes('rsa') || name.includes('generator'))
-    return 'key'
-  if (name.includes('hash') || name.includes('encrypt') || name.includes('bcrypt'))
-    return 'lock'
-  if (name.includes('json') || name.includes('yaml') || name.includes('xml') || name.includes('code'))
-    return 'code'
-  if (name.includes('network') || name.includes('ip') || name.includes('subnet'))
-    return 'network'
-  if (name.includes('database') || name.includes('sql'))
-    return 'database'
-  if (name.includes('docker') || name.includes('container'))
-    return 'server'
-  if (name.includes('regex') || name.includes('text'))
-    return 'wrench'
-  if (name.includes('converter') || name.includes('transform'))
-    return 'gear'
+  if (name.includes('key') || name.includes('rsa') || name.includes('generator')) {
+    return 'key';
+  }
+  if (name.includes('hash') || name.includes('encrypt') || name.includes('bcrypt')) {
+    return 'lock';
+  }
+  if (name.includes('json') || name.includes('yaml') || name.includes('xml') || name.includes('code')) {
+    return 'code';
+  }
+  if (name.includes('network') || name.includes('ip') || name.includes('subnet')) {
+    return 'network';
+  }
+  if (name.includes('database') || name.includes('sql')) {
+    return 'database';
+  }
+  if (name.includes('docker') || name.includes('container')) {
+    return 'server';
+  }
+  if (name.includes('regex') || name.includes('text')) {
+    return 'wrench';
+  }
+  if (name.includes('converter') || name.includes('transform')) {
+    return 'gear';
+  }
 
-  return 'wrench'
-})
+  return 'wrench';
+});
 
 // Modern color palette for different tool types
 const getToolColor = computed(() => {
-  const type = getSilhouetteType.value
+  const type = getSilhouetteType.value;
   const colors: Record<string, { primary: string; light: string; gradient: string }> = {
     key: {
       primary: '#FF9500',
@@ -83,9 +92,9 @@ const getToolColor = computed(() => {
       light: '#FF5A7A',
       gradient: 'linear-gradient(135deg, #FF2D55 0%, #FF5A7A 100%)',
     },
-  }
-  return colors[type] || colors.wrench
-})
+  };
+  return colors[type] || colors.wrench;
+});
 </script>
 
 <template>
