@@ -2,12 +2,14 @@
 import { IconDragDrop } from '@tabler/icons-vue';
 import { useHead } from '@vueuse/head';
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import Draggable from 'vuedraggable';
 import ToolCardModern from '../components/ToolCardModern.vue';
 import PegboardBackground from '../components/PegboardBackground.vue';
 import { useToolStore } from '@/tools/tools.store';
 
 const toolStore = useToolStore();
+const router = useRouter();
 
 useHead({ title: 'DevOps Toolkit - Essential tools for modern development workflows' });
 const { t } = useI18n();
@@ -17,6 +19,11 @@ const favoriteTools = computed(() => toolStore.favoriteTools);
 // Update favorite tools order when drag is finished
 function onUpdateFavoriteTools() {
   toolStore.updateFavoriteTools(favoriteTools.value); // Update the store with the new order
+}
+
+// Navigate to tool page
+function navigateToTool(toolPath: string) {
+  router.push(toolPath);
 }
 
 // Map EACH tool to a completely UNIQUE icon - no duplicates!
@@ -152,7 +159,7 @@ function getSilhouetteType(toolPath: string): string {
             @end="onUpdateFavoriteTools"
           >
             <template #item="{ element: tool }">
-              <ToolCardModern :tool="tool" :silhouette-type="getSilhouetteType(tool.path)" />
+              <ToolCardModern :tool="tool" :silhouette-type="getSilhouetteType(tool.path)" @click="navigateToTool(tool.path)" />
             </template>
           </Draggable>
         </div>
@@ -163,7 +170,7 @@ function getSilhouetteType(toolPath: string): string {
           {{ t('home.categories.newestTools') }}
         </h3>
         <div class="grid grid-cols-1 gap-12px lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4">
-          <ToolCardModern v-for="tool in toolStore.newTools" :key="tool.name" :tool="tool" :silhouette-type="getSilhouetteType(tool.path)" />
+          <ToolCardModern v-for="tool in toolStore.newTools" :key="tool.name" :tool="tool" :silhouette-type="getSilhouetteType(tool.path)" @click="navigateToTool(tool.path)" />
         </div>
       </div>
 
@@ -171,7 +178,7 @@ function getSilhouetteType(toolPath: string): string {
         {{ $t('home.categories.allTools') }}
       </h3>
       <div class="grid grid-cols-1 gap-12px lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4">
-        <ToolCardModern v-for="tool in toolStore.tools" :key="tool.name" :tool="tool" :silhouette-type="getSilhouetteType(tool.path)" />
+        <ToolCardModern v-for="tool in toolStore.tools" :key="tool.name" :tool="tool" :silhouette-type="getSilhouetteType(tool.path)" @click="navigateToTool(tool.path)" />
       </div>
     </div>
   </PegboardBackground>
