@@ -17,6 +17,7 @@ spec:
         app: devops-toolkit
         component: prometheus
     spec:
+      serviceAccountName: prometheus
       containers:
       - name: prometheus
         image: prom/prometheus:latest

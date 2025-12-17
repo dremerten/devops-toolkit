@@ -104,13 +104,3 @@ spec:
   resources:
     requests:
       storage: 5Gi
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: grafana-credentials
-  namespace: monitoring
-type: Opaque
-stringData:
-  admin-user: "admin"
-  admin-password: "your-secure-grafana-password"
