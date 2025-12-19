@@ -12,7 +12,6 @@ const emit = defineEmits<{
   click: []
 }>();
 
-// Map tool categories to silhouette types and colors
 const getSilhouetteType = computed(() => {
   if (props.silhouetteType) {
     return props.silhouetteType;
@@ -48,95 +47,87 @@ const getSilhouetteType = computed(() => {
   return 'wrench';
 });
 
-// Modern color palette for different tool types
 const getToolColor = computed(() => {
   const type = getSilhouetteType.value;
   const colors: Record<string, { primary: string; light: string; gradient: string }> = {
     key: {
-      primary: '#FF9500',
-      light: '#FFB340',
-      gradient: 'linear-gradient(135deg, #FF9500 0%, #FFB340 100%)',
+      primary: '#f59e0b',
+      light: '#fbbf24',
+      gradient: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
     },
     lock: {
-      primary: '#FF3B30',
-      light: '#FF6259',
-      gradient: 'linear-gradient(135deg, #FF3B30 0%, #FF6259 100%)',
+      primary: '#ef4444',
+      light: '#f87171',
+      gradient: 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)',
     },
     code: {
-      primary: '#007AFF',
-      light: '#4DA2FF',
-      gradient: 'linear-gradient(135deg, #007AFF 0%, #4DA2FF 100%)',
+      primary: '#3b82f6',
+      light: '#60a5fa',
+      gradient: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)',
     },
     network: {
-      primary: '#5856D6',
-      light: '#7D7AFF',
-      gradient: 'linear-gradient(135deg, #5856D6 0%, #7D7AFF 100%)',
+      primary: '#6366f1',
+      light: '#818cf8',
+      gradient: 'linear-gradient(135deg, #6366f1 0%, #818cf8 100%)',
     },
     database: {
-      primary: '#AF52DE',
-      light: '#C77EE8',
-      gradient: 'linear-gradient(135deg, #AF52DE 0%, #C77EE8 100%)',
+      primary: '#8b5cf6',
+      light: '#a78bfa',
+      gradient: 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)',
     },
     server: {
-      primary: '#34C759',
-      light: '#62D77D',
-      gradient: 'linear-gradient(135deg, #34C759 0%, #62D77D 100%)',
+      primary: '#10b981',
+      light: '#34d399',
+      gradient: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
     },
     wrench: {
-      primary: '#00C7BE',
-      light: '#32D9D2',
-      gradient: 'linear-gradient(135deg, #00C7BE 0%, #32D9D2 100%)',
+      primary: '#22d3ee',
+      light: '#67e8f9',
+      gradient: 'linear-gradient(135deg, #22d3ee 0%, #67e8f9 100%)',
     },
     gear: {
-      primary: '#FF2D55',
-      light: '#FF5A7A',
-      gradient: 'linear-gradient(135deg, #FF2D55 0%, #FF5A7A 100%)',
+      primary: '#f97316',
+      light: '#fb923c',
+      gradient: 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)',
     },
   };
   return colors[type] || colors.wrench;
 });
+
+const amberGlowGradient =
+  'linear-gradient(135deg, rgba(249, 115, 22, 0.95) 0%, rgba(251, 191, 36, 0.7) 60%, rgba(249, 115, 22, 0.15) 100%)';
 </script>
 
 <template>
   <div class="modern-tool-card" @click="emit('click')">
-    <!-- Pegboard hook -->
-    <div class="peg-hook">
-      <div class="hook-cylinder" />
-      <div class="hook-tip" />
-    </div>
-
-    <!-- Card shadow/depth -->
-    <div class="card-shadow" />
-
-    <!-- Main card content -->
+    <div class="card-glow" :style="{ background: amberGlowGradient }" />
     <div class="card-content">
-      <!-- Colored header bar -->
       <div class="color-accent" :style="{ background: getToolColor.gradient }" />
 
-      <!-- Tool silhouette -->
+      <div class="card-top">
+        <div class="card-tag" :style="{ color: getToolColor.light, borderColor: `${getToolColor.light}55` }">
+          TOOL
+        </div>
+        <div v-if="tool.isNew" class="new-badge" :style="{ background: getToolColor.gradient }">
+          <span>NEW</span>
+        </div>
+      </div>
+
       <div class="tool-icon-container">
         <div class="icon-background" :style="{ background: getToolColor.gradient, opacity: 0.1 }" />
         <ToolSilhouettes
           :tool="getSilhouetteType"
           :size="80"
           class="tool-icon"
-          :style="{ color: getToolColor.primary }"
         />
       </div>
 
-      <!-- Tool name -->
       <div class="tool-name">
         {{ tool.name }}
       </div>
 
-      <!-- Tool description -->
       <div class="tool-description">
         {{ tool.description }}
-      </div>
-
-      <!-- NEW badge -->
-      <div v-if="tool.isNew" class="new-badge" :style="{ background: getToolColor.gradient }">
-        <span>NEW</span>
       </div>
     </div>
   </div>
@@ -146,29 +137,17 @@ const getToolColor = computed(() => {
 .modern-tool-card {
   position: relative;
   cursor: pointer;
-  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  padding-top: 16px;
+  transition: transform 0.4s ease;
+  border-radius: 24px;
 
   &:hover {
     transform: translateY(-8px);
 
     .card-content {
-      background: rgba(255, 255, 255, 0.98);
+      border-color: rgba(249, 115, 22, 0.45);
       box-shadow:
-        0 20px 60px -10px rgba(0, 0, 0, 0.12),
-        0 0 0 1px rgba(0, 0, 0, 0.03),
-        0 4px 16px rgba(0, 0, 0, 0.04);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-    }
-
-    .card-shadow {
-      opacity: 0.25;
-      transform: translateY(12px) scale(0.96);
-    }
-
-    .peg-hook {
-      transform: translateY(-3px);
+        0 34px 70px rgba(2, 6, 23, 0.45),
+        0 0 0 1px rgba(249, 115, 22, 0.25);
     }
 
     .tool-icon {
@@ -177,7 +156,12 @@ const getToolColor = computed(() => {
 
     .icon-background {
       transform: scale(1.25);
-      opacity: 0.18 !important;
+      opacity: 0.2 !important;
+    }
+
+    .card-glow {
+      opacity: 0.28;
+      transform: translateY(-12px) scale(1.08);
     }
   }
 
@@ -186,59 +170,39 @@ const getToolColor = computed(() => {
   }
 }
 
-/* Refined pegboard hook */
-.peg-hook {
+.card-glow {
   position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  z-index: 10;
-}
-
-.hook-cylinder {
-  width: 12px;
-  height: 16px;
-  background: linear-gradient(90deg, #C7C7CC 0%, #D1D1D6 50%, #C7C7CC 100%);
-  border-radius: 6px 6px 0 0;
-  box-shadow:
-    inset 0 1px 2px rgba(255, 255, 255, 0.8),
-    0 2px 6px rgba(0, 0, 0, 0.08);
-  margin: 0 auto;
-}
-
-.hook-tip {
-  width: 16px;
-  height: 6px;
-  background: radial-gradient(ellipse at center, #D1D1D6 0%, #C7C7CC 100%);
-  border-radius: 50%;
-  margin: -1px auto 0;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.12),
-    inset 0 1px 1px rgba(255, 255, 255, 0.6);
-}
-
-/* Ultra-soft card shadow */
-.card-shadow {
-  position: absolute;
-  bottom: -8px;
-  left: 8%;
-  right: 8%;
-  height: 18px;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.1) 0%, transparent 70%);
-  border-radius: 50%;
-  opacity: 0.18;
-  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  inset: -8px;
+  border-radius: 28px;
+  opacity: 0.25;
+  filter: blur(32px);
   z-index: 0;
-  filter: blur(12px);
+  transition: all 0.4s ease;
 }
 
-/* Premium glass card */
+.card-tag {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+:global(html:not(.dark)) .card-glow {
+  opacity: 0.18;
+}
+
+:global(html:not(.dark)) .card-tag {
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.2) !important;
+}
+
 .card-content {
   position: relative;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--app-card);
+  border: 1px solid var(--app-card-border);
   border-radius: 24px;
   padding: 0 0 28px 0;
   display: flex;
@@ -246,25 +210,37 @@ const getToolColor = computed(() => {
   align-items: center;
   min-height: 260px;
   box-shadow:
-    0 10px 40px -8px rgba(0, 0, 0, 0.08),
-    0 0 0 1px rgba(0, 0, 0, 0.02),
-    0 2px 8px rgba(0, 0, 0, 0.03);
-  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    0 18px 40px rgba(2, 6, 23, 0.35),
+    inset 0 1px 0 rgba(148, 163, 184, 0.12);
+  transition: all 0.4s ease;
   overflow: hidden;
   z-index: 1;
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
-/* Subtle colored accent bar */
+:global(html:not(.dark)) .modern-tool-card .card-content {
+  box-shadow:
+    0 20px 50px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 rgba(15, 23, 42, 0.06);
+  border-color: rgba(249, 115, 22, 0.25);
+}
+
 .color-accent {
   width: 100%;
-  height: 3px;
+  height: 4px;
   border-radius: 24px 24px 0 0;
-  margin-bottom: 20px;
   opacity: 0.9;
 }
 
-/* Tool icon */
+.card-top {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 0;
+}
+
 .tool-icon-container {
   position: relative;
   width: 120px;
@@ -280,35 +256,51 @@ const getToolColor = computed(() => {
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.4s ease;
   z-index: 0;
-  filter: blur(2px);
+  filter: blur(6px);
 }
 
 .tool-icon {
   position: relative;
   z-index: 1;
-  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
+  transition: all 0.4s ease;
+  color: var(--app-amber);
+  filter:
+    drop-shadow(0 6px 18px rgba(2, 6, 23, 0.4))
+    drop-shadow(0 0 12px var(--app-amber-glow));
+  animation: iconPulse 6.8s ease-in-out infinite;
 }
 
-/* Clean Apple typography */
+@keyframes iconPulse {
+  0%, 100% {
+    filter:
+      drop-shadow(0 6px 18px rgba(2, 6, 23, 0.35))
+      drop-shadow(0 0 12px rgba(249, 115, 22, 0.65));
+  }
+  50% {
+    filter:
+      drop-shadow(0 12px 32px rgba(2, 6, 23, 0.5))
+      drop-shadow(0 0 24px rgba(251, 191, 36, 0.82));
+  }
+}
+
 .tool-name {
   font-size: 18px;
   font-weight: 600;
-  color: #1D1D1F;
+  color: var(--app-amber-soft);
   text-align: center;
   line-height: 1.25;
   margin: 0 24px 10px;
-  letter-spacing: -0.022em;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  letter-spacing: -0.02em;
+  font-family: var(--font-sans);
+  text-shadow: 0 0 12px var(--app-amber-glow);
 }
 
-/* Tool description */
 .tool-description {
   font-size: 14px;
   font-weight: 400;
-  color: #6E6E73;
+  color: var(--app-amber);
   text-align: center;
   line-height: 1.42857;
   margin: 0 24px;
@@ -316,31 +308,24 @@ const getToolColor = computed(() => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  letter-spacing: -0.016em;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  letter-spacing: -0.01em;
+  font-family: var(--font-sans);
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
 }
 
-/* Premium NEW badge */
 .new-badge {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: 20px;
-  box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  z-index: 10;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px rgba(2, 6, 23, 0.4);
+  z-index: 2;
 
   span {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     color: #FFFFFF;
     letter-spacing: 0.6px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    font-family: var(--font-sans);
   }
 }
 </style>

@@ -156,6 +156,17 @@ const tools = computed<ToolCategory[]>(() => [
 .environment-wrapper {
   width: 100%;
   height: 100%;
+  color: var(--app-text);
+  background: radial-gradient(1000px 520px at 12% -10%, rgba(249, 115, 22, 0.22), transparent 60%),
+    radial-gradient(900px 400px at 92% 5%, rgba(248, 210, 144, 0.18), transparent 65%),
+    linear-gradient(180deg, #03060d 0%, #05070f 55%, #060914 100%);
+}
+
+:global(html:not(.dark)) .environment-wrapper {
+  background: radial-gradient(1100px 520px at 15% -15%, rgba(249, 115, 22, 0.18), transparent 60%),
+    radial-gradient(900px 420px at 88% 10%, rgba(251, 191, 36, 0.25), transparent 70%),
+    linear-gradient(180deg, #fffdfa 0%, #fff2e6 55%, #fffdfa 100%);
+  color: #0f172a;
 }
 
 .env-top-bar {
@@ -168,13 +179,14 @@ const tools = computed<ToolCategory[]>(() => [
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  color: white;
+  color: #fff;
   font-weight: 700;
   font-size: 11px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(10px);
+  background: rgba(5, 8, 18, 0.9);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(14px);
 }
 
 .env-top-bar-content {
@@ -188,6 +200,13 @@ const tools = computed<ToolCategory[]>(() => [
   height: 8px;
   border-radius: 50%;
   animation: blink 1.5s ease-in-out infinite;
+}
+
+:global(html:not(.dark)) .env-top-bar {
+  background: rgba(255, 255, 255, 0.88);
+  color: #0f172a;
+  box-shadow: 0 2px 16px rgba(15, 23, 42, 0.15);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 @keyframes blink {
@@ -229,7 +248,7 @@ const tools = computed<ToolCategory[]>(() => [
 
 .footer {
   text-align: center;
-  color: #838587;
+  color: var(--app-muted);
   margin-top: 20px;
   padding: 20px 0;
 
@@ -277,16 +296,20 @@ const tools = computed<ToolCategory[]>(() => [
     color: #fff;
 
     .title {
-      font-size: 26px;
-      font-weight: 700;
-      letter-spacing: 2px;
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-family: var(--font-sans);
+      color: var(--app-amber-soft);
+      text-shadow: 0 0 18px var(--app-amber-glow);
     }
 
     .divider {
       width: 70px;
       height: 3px;
       border-radius: 6px;
-      background: linear-gradient(90deg, #0ea5e9 0%, #7dd3fc 100%);
+      background: linear-gradient(90deg, rgba(249, 115, 22, 0.95) 0%, rgba(251, 191, 36, 0.85) 100%);
       margin: 0 auto 5px;
     }
 
@@ -302,6 +325,7 @@ const tools = computed<ToolCategory[]>(() => [
       border: 2px solid;
       transition: all 0.3s ease;
       animation: pulse 2s ease-in-out infinite;
+      font-family: var(--font-sans);
 
       &:hover {
         transform: scale(1.05);
@@ -321,7 +345,12 @@ const tools = computed<ToolCategory[]>(() => [
       font-size: 15px;
       font-weight: 500;
       opacity: 0.95;
+      font-family: var(--font-sans);
     }
   }
+}
+
+:global(html:not(.dark)) .hero-wrapper .text-wrapper {
+  color: #0f172a;
 }
 </style>

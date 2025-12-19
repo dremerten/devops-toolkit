@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { IconDragDrop } from '@tabler/icons-vue';
 import { useHead } from '@vueuse/head';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Draggable from 'vuedraggable';
 import ToolCardModern from '../components/ToolCardModern.vue';
@@ -15,6 +15,30 @@ useHead({ title: 'DevOps Toolkit - Essential tools for modern development workfl
 const { t } = useI18n();
 
 const favoriteTools = computed(() => toolStore.favoriteTools);
+const selectedCategory = ref('all');
+const categoryTabs = computed(() => {
+  const allTab = {
+    key: 'all',
+    name: t('home.categories.allTools'),
+    count: toolStore.tools.length,
+  };
+  const categoryTabs = toolStore.toolsByCategory.map(category => ({
+    key: category.name,
+    name: category.name,
+    count: category.components.length,
+  }));
+
+  return [allTab, ...categoryTabs];
+});
+
+const filteredTools = computed(() => {
+  if (selectedCategory.value === 'all') {
+    return toolStore.tools;
+  }
+
+  const category = toolStore.toolsByCategory.find(item => item.name === selectedCategory.value);
+  return category?.components ?? [];
+});
 
 // Update favorite tools order when drag is finished
 function onUpdateFavoriteTools() {
@@ -132,19 +156,34 @@ function getSilhouetteType(toolPath: string): string {
 
 <template>
   <PegboardBackground>
-    <!-- Modern Header -->
-    <div class="demo-header">
+    <div class="hero">
+      <div class="hero-eyebrow">
+        DevOps Toolkit
+      </div>
       <h1 class="title">
-        DevOps Toolkit.
+        Tools to help in everyday development tasks.
       </h1>
       <p class="subtitle">
-        Essential tools for modern development workflows.
+        Essential tools for shipping fast, reliable, and secure infrastructure.
       </p>
     </div>
 
     <div class="grid-wrapper">
+      <div class="category-tabs">
+        <button
+          v-for="category in categoryTabs"
+          :key="category.key"
+          type="button"
+          class="category-tab"
+          :class="{ active: selectedCategory === category.key }"
+          @click="selectedCategory = category.key"
+        >
+          <span>{{ category.name }}</span>
+          <span class="category-count">{{ category.count }}</span>
+        </button>
+      </div>
       <transition name="height">
-        <div v-if="toolStore.favoriteTools.length > 0">
+        <div v-if="selectedCategory === 'all' && toolStore.favoriteTools.length > 0">
           <h3 class="section-header">
             {{ $t('home.categories.favoriteTools') }}
             <c-tooltip :tooltip="$t('home.categories.favoritesDndToolTip')">
@@ -165,7 +204,7 @@ function getSilhouetteType(toolPath: string): string {
         </div>
       </transition>
 
-      <div v-if="toolStore.newTools.length > 0">
+      <div v-if="selectedCategory === 'all' && toolStore.newTools.length > 0">
         <h3 class="section-header">
           {{ t('home.categories.newestTools') }}
         </h3>
@@ -175,27 +214,27 @@ function getSilhouetteType(toolPath: string): string {
       </div>
 
       <h3 class="section-header">
-        {{ $t('home.categories.allTools') }}
+        {{ selectedCategory === 'all' ? $t('home.categories.allTools') : selectedCategory }}
       </h3>
       <div class="grid grid-cols-1 gap-12px lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4">
-        <ToolCardModern v-for="tool in toolStore.tools" :key="tool.name" :tool="tool" :silhouette-type="getSilhouetteType(tool.path)" @click="navigateToTool(tool.path)" />
+        <ToolCardModern v-for="tool in filteredTools" :key="tool.name" :tool="tool" :silhouette-type="getSilhouetteType(tool.path)" @click="navigateToTool(tool.path)" />
       </div>
     </div>
   </PegboardBackground>
 </template>
 
 <style scoped lang="less">
-.demo-header {
+.hero {
   text-align: center;
-  margin-bottom: 80px;
-  padding-top: 40px;
-  animation: fade-in 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  margin-bottom: 88px;
+  padding-top: 24px;
+  animation: fade-in 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 @keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(-30px);
+    transform: translateY(-26px);
   }
   to {
     opacity: 1;
@@ -203,36 +242,62 @@ function getSilhouetteType(toolPath: string): string {
   }
 }
 
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: #93c5fd;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 24px;
+  background: rgba(15, 23, 42, 0.6);
+  box-shadow: inset 0 0 18px rgba(59, 130, 246, 0.25);
+}
+
+:global(html:not(.dark)) .hero-eyebrow {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(15, 23, 42, 0.2);
+  color: #0f172a;
+  box-shadow: inset 0 0 12px rgba(15, 23, 42, 0.08);
+}
+
 .title {
-  font-size: 76px;
-  font-weight: 700;
+  font-size: 68px;
+  font-weight: 600;
   margin: 0 0 20px;
-  color: #1D1D1F;
-  letter-spacing: -0.035em;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  color: var(--app-amber-soft);
+  letter-spacing: -0.03em;
+  font-family: var(--font-sans);
   line-height: 1.05;
-  background: linear-gradient(180deg, #1D1D1F 0%, #3D3D3D 100%);
+  background: linear-gradient(90deg, #fde6c3 0%, #f59e0b 50%, #f97316 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-shadow: 0 0 24px var(--app-amber-glow);
 
   @media (max-width: 768px) {
-    font-size: 48px;
+    font-size: 42px;
   }
 }
 
 .subtitle {
-  font-size: 28px;
-  font-weight: 500;
-  color: #6E6E73;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--app-text);
   margin: 0;
-  letter-spacing: -0.015em;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  line-height: 1.35;
+  letter-spacing: -0.01em;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  text-shadow: 0 0 12px rgba(245, 158, 11, 0.2);
 
   @media (max-width: 768px) {
-    font-size: 20px;
-    padding: 0 20px;
+    font-size: 18px;
+    padding: 0 16px;
   }
 }
 
@@ -260,6 +325,61 @@ function getSilhouetteType(toolPath: string): string {
   animation: ghost-favorites-draggable-animation 0.2s ease-out;
 }
 
+.category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+
+.category-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(15, 23, 42, 0.65);
+  color: var(--app-text);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 0 12px rgba(15, 23, 42, 0.35);
+}
+
+.category-tab:hover {
+  transform: translateY(-2px);
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+.category-tab.active {
+  border-color: rgba(245, 158, 11, 0.6);
+  color: var(--app-amber-soft);
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.25);
+}
+
+.category-count {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--app-amber-soft);
+}
+
+:global(html:not(.dark)) .category-tab {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(249, 115, 22, 0.25);
+  color: #0f172a;
+  box-shadow: inset 0 0 12px rgba(249, 115, 22, 0.12);
+}
+
+:global(html:not(.dark)) .category-tab.active {
+  border-color: rgba(249, 115, 22, 0.5);
+  color: var(--app-amber-soft);
+  box-shadow: 0 0 18px rgba(249, 115, 22, 0.35);
+}
 @keyframes ghost-favorites-draggable-animation {
   0% {
     opacity: 0;
@@ -272,15 +392,17 @@ function getSilhouetteType(toolPath: string): string {
 }
 
 .section-header {
-  font-size: 20px;
+  font-size: 14px;
   font-weight: 600;
-  color: #1D1D1F;
+  color: var(--app-amber);
   margin-bottom: 16px;
   margin-top: 48px;
-  letter-spacing: -0.02em;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-family: var(--font-sans);
   display: flex;
   align-items: center;
   gap: 8px;
+  text-shadow: 0 0 12px var(--app-amber-glow);
 }
 </style>

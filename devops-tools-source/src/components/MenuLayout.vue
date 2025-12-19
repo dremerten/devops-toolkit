@@ -38,6 +38,10 @@ const siderPosition = computed(() => (isSmallScreen.value ? 'absolute' : 'static
   cursor: pointer;
 }
 
+:global(html:not(.dark)) .overlay {
+  background-color: rgba(15, 23, 42, 0.18);
+}
+
 .content {
   // background-color: #f1f5f9;
   ::v-deep(.n-layout-scroll-container) {
@@ -47,5 +51,21 @@ const siderPosition = computed(() => (isSmallScreen.value ? 'absolute' : 'static
 
 .n-layout {
   height: 100vh;
+}
+
+::v-deep(.n-layout-sider) {
+  background: rgba(10, 15, 24, 0.92);
+  border-right: 1px solid rgba(148, 163, 184, 0.16);
+  backdrop-filter: blur(16px);
+}
+
+:global(html:not(.dark)) ::v-deep(.n-layout-sider) {
+  background: rgba(255, 255, 255, 0.95);
+  border-right: 1px solid rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(16px);
+}
+
+::v-deep(.n-layout) {
+  background: transparent;
 }
 </style>
