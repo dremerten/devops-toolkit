@@ -3,14 +3,11 @@ import _ from 'lodash';
 import type { PaletteOption } from './command-palette.types';
 import { useToolStore } from '@/tools/tools.store';
 import { useFuzzySearch } from '@/composable/fuzzySearch';
-import { useStyleStore } from '@/stores/style.store';
 
-import SunIcon from '~icons/mdi/white-balance-sunny';
 import DiceIcon from '~icons/mdi/dice-5';
 
 export const useCommandPaletteStore = defineStore('command-palette', () => {
   const toolStore = useToolStore();
-  const styleStore = useStyleStore();
   const router = useRouter();
   const searchPrompt = ref('');
 

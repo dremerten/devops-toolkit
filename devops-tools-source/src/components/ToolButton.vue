@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { Tool } from '@/tools';
 
-const props = defineProps<{
+defineProps<{
   tool: Tool
   icon?: string
 }>();
@@ -10,7 +9,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   click: []
 }>();
-
 </script>
 
 <template>

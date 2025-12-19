@@ -94,8 +94,7 @@ const getToolColor = computed(() => {
   return colors[type] || colors.wrench;
 });
 
-const amberGlowGradient =
-  'linear-gradient(135deg, rgba(249, 115, 22, 0.95) 0%, rgba(251, 191, 36, 0.7) 60%, rgba(249, 115, 22, 0.15) 100%)';
+const amberGlowGradient = 'linear-gradient(135deg, rgba(249, 115, 22, 0.95) 0%, rgba(251, 191, 36, 0.7) 60%, rgba(249, 115, 22, 0.15) 100%)';
 </script>
 
 <template>
