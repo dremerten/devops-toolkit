@@ -1,0 +1,59 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+:root {
+  --app-bg: #03060d;
+  --app-bg-alt: #0f172a;
+  --app-surface: rgba(8, 12, 24, 0.85);
+  --app-card: rgba(15, 23, 42, 0.88);
+  --app-border: rgba(148, 163, 184, 0.35);
+  --app-card-border: rgba(59, 130, 246, 0.25);
+  --app-text: #f8fafc;
+  --app-muted: #94a3b8;
+  --app-accent: #f97316;
+  --app-accent-strong: #fb7c2d;
+  --app-accent-soft: #fb923c;
+  --app-amber: #f97316;
+  --app-amber-soft: #fdba74;
+  --app-amber-glow: rgba(249, 115, 22, 0.48);
+  --app-shadow: 0 25px 70px rgba(2, 6, 23, 0.65);
+  --font-sans: "Space Grotesk", "IBM Plex Sans", "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "Fira Code", "SFMono-Regular", monospace;
+}
+
+html:not(.dark) {
+  --app-bg: #fffdfa;
+  --app-bg-alt: #fef7ed;
+  --app-surface: rgba(255, 255, 255, 0.9);
+  --app-card: #ffffff;
+  --app-border: rgba(15, 23, 42, 0.12);
+  --app-card-border: rgba(226, 196, 159, 0.45);
+  --app-text: #0f172a;
+  --app-muted: #475569;
+  --app-accent: #f97316;
+  --app-accent-strong: #ea580c;
+  --app-accent-soft: #fb923c;
+  --app-amber: #ea580c;
+  --app-amber-soft: #f97316;
+  --app-amber-glow: rgba(249, 115, 22, 0.35);
+  --app-shadow: 0 22px 50px rgba(15, 23, 42, 0.18);
+}
+
+html,
+body {
+  background-color: var(--app-bg);
+  color: var(--app-text);
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-height: 100%;
+}
+
+* {
+  font-family: inherit;
+}
+
+.app-muted {
+  color: var(--app-muted);
+}

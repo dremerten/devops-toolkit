@@ -83,25 +83,28 @@ const toolDescription = computed<string>(() => t(`tools.${i18nKey.value}.descrip
 
     .n-h1 {
       opacity: 0.9;
-      font-size: 40px;
-      font-weight: 400;
+      font-size: 38px;
+      font-weight: 500;
       margin: 0;
       line-height: 1;
+      color: var(--app-text);
+      font-family: var(--font-sans);
     }
 
     .separator {
       width: 200px;
       height: 2px;
-      background: rgb(161, 161, 161);
-      opacity: 0.2;
+      background: linear-gradient(90deg, rgba(59, 130, 246, 0.6), rgba(34, 211, 238, 0.2));
+      opacity: 0.8;
 
       margin: 10px 0;
     }
 
     .description {
       margin: 0;
-
-      opacity: 0.7;
+      opacity: 0.8;
+      color: var(--app-muted);
+      font-family: var(--font-sans);
     }
   }
 }

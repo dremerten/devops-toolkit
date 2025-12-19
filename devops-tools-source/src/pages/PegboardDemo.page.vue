@@ -50,8 +50,10 @@ function navigateToTool(toolPath: string) {
 
 <template>
   <PegboardBackground>
-    <!-- Modern Header -->
-    <div class="demo-header">
+    <div class="hero">
+      <div class="hero-eyebrow">
+        Design Preview
+      </div>
       <h1 class="title">
         DevOps Toolkit.
       </h1>
@@ -71,7 +73,6 @@ function navigateToTool(toolPath: string) {
       />
     </div>
 
-    <!-- Demo badge -->
     <div class="demo-badge">
       <span class="demo-text">Modern Design Preview</span>
     </div>
@@ -79,7 +80,7 @@ function navigateToTool(toolPath: string) {
 </template>
 
 <style scoped lang="less">
-.demo-header {
+.hero {
   text-align: center;
   margin-bottom: 72px;
   padding-top: 20px;
@@ -97,14 +98,36 @@ function navigateToTool(toolPath: string) {
   }
 }
 
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: #93c5fd;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 20px;
+  background: rgba(15, 23, 42, 0.6);
+}
+
+:global(html:not(.dark)) .hero-eyebrow {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(15, 23, 42, 0.2);
+  color: #0f172a;
+}
+
 .title {
-  font-size: 64px;
-  font-weight: 700;
+  font-size: 60px;
+  font-weight: 600;
   margin: 0 0 16px;
-  color: #1D1D1F;
+  color: var(--app-amber-soft);
   letter-spacing: -0.03em;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.1;
+  text-shadow: 0 0 20px var(--app-amber-glow);
 
   @media (max-width: 768px) {
     font-size: 40px;
@@ -112,14 +135,14 @@ function navigateToTool(toolPath: string) {
 }
 
 .subtitle {
-  font-size: 24px;
-  font-weight: 500;
-  color: #3D3D3D;
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--app-text);
   margin: 0;
   letter-spacing: -0.01em;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.4;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
 
   @media (max-width: 768px) {
     font-size: 18px;
@@ -154,21 +177,21 @@ function navigateToTool(toolPath: string) {
   position: fixed;
   bottom: 32px;
   right: 32px;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
   padding: 10px 20px;
   border-radius: 20px;
   box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.08),
-    0 0 0 1px rgba(0, 0, 0, 0.04);
+    0 12px 30px rgba(2, 6, 23, 0.45),
+    inset 0 0 0 1px rgba(148, 163, 184, 0.2);
   z-index: 1000;
   transition: all 0.3s ease;
 
   &:hover {
     box-shadow:
-      0 8px 24px rgba(0, 0, 0, 0.12),
-      0 0 0 1px rgba(0, 0, 0, 0.06);
+      0 18px 36px rgba(2, 6, 23, 0.55),
+      inset 0 0 0 1px rgba(59, 130, 246, 0.35);
     transform: translateY(-2px);
   }
 
@@ -181,8 +204,8 @@ function navigateToTool(toolPath: string) {
 .demo-text {
   font-size: 13px;
   font-weight: 500;
-  color: #1D1D1F;
+  color: #e2e8f0;
   letter-spacing: -0.01em;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-sans);
 }
 </style>

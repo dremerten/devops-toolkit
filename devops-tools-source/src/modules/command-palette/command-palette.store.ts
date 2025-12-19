@@ -35,14 +35,14 @@ export const useCommandPaletteStore = defineStore('command-palette', () => {
       keywords: ['random', 'tool', 'pick', 'choose', 'select'],
       closeOnSelect: true,
     },
-    {
-      name: 'Toggle dark mode',
-      description: 'Toggle dark mode on or off.',
-      action: () => styleStore.toggleDark(),
-      icon: SunIcon,
-      category: 'Actions',
-      keywords: ['dark', 'theme', 'toggle', 'mode', 'light', 'system'],
-    },
+    // {
+    //   name: 'Toggle dark mode',
+    //   description: 'Toggle dark mode on or off.',
+    //   action: () => styleStore.toggleDark(),
+    //   icon: SunIcon,
+    //   category: 'Actions',
+    //   keywords: ['dark', 'theme', 'toggle', 'mode', 'light', 'system'],
+    // },
   ];
 
   const { searchResult } = useFuzzySearch({
