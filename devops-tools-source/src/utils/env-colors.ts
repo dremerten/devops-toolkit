@@ -12,35 +12,35 @@ export interface EnvColorScheme {
 
 export const ENV_COLOR_SCHEMES: Record<string, EnvColorScheme> = {
   production: {
-    primary: '#dc2626', // Red - Production danger
-    primaryHover: '#ef4444',
-    primaryPressed: '#991b1b',
-    accentColor: '#fecaca',
-    borderColor: '#fee2e2',
+    primary: '#1e3a8a', // Navy - Production stability
+    primaryHover: '#2745a3',
+    primaryPressed: '#172554',
+    accentColor: '#c7d2fe',
+    borderColor: '#e0e7ff',
     label: 'PRODUCTION',
   },
   staging: {
-    primary: '#f59e0b', // Amber - Staging warning
-    primaryHover: '#fbbf24',
-    primaryPressed: '#d97706',
-    accentColor: '#fcd34d',
-    borderColor: '#fef3c7',
+    primary: '#059669', // Emerald - Staging ready
+    primaryHover: '#10b981',
+    primaryPressed: '#047857',
+    accentColor: '#a7f3d0',
+    borderColor: '#d1fae5',
     label: 'STAGING',
   },
   qa: {
-    primary: '#0ea5e9', // Cyan - QA info
-    primaryHover: '#38bdf8',
-    primaryPressed: '#0284c7',
-    accentColor: '#7dd3fc',
-    borderColor: '#cffafe',
+    primary: '#eab308', // Citrine - QA clarity
+    primaryHover: '#facc15',
+    primaryPressed: '#ca8a04',
+    accentColor: '#fef08a',
+    borderColor: '#fef9c3',
     label: 'QA',
   },
   development: {
-    primary: '#10b981', // Emerald - Development safe
-    primaryHover: '#34d399',
-    primaryPressed: '#059669',
-    accentColor: '#6ee7b7',
-    borderColor: '#d1fae5',
+    primary: '#f97316', // Orange - Development active
+    primaryHover: '#fb923c',
+    primaryPressed: '#ea580c',
+    accentColor: '#fed7aa',
+    borderColor: '#ffedd5',
     label: 'DEVELOPMENT',
   },
 };
