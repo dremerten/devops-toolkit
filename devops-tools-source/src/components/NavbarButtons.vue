@@ -4,12 +4,13 @@ import { useStyleStore } from '@/stores/style.store';
 
 const styleStore = useStyleStore();
 const { isDarkTheme } = toRefs(styleStore);
+const showThemeToggle = false;
 </script>
 
 <template>
   <!-- Theme toggle temporarily hidden from the UI -->
   <c-tooltip
-    v-if="false"
+    v-if="showThemeToggle"
     :tooltip="isDarkTheme ? $t('home.nav.lightMode') : $t('home.nav.darkMode')"
     position="bottom"
   >
