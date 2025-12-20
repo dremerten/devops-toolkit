@@ -161,10 +161,10 @@ function getSilhouetteType(toolPath: string): string {
         DevOps Toolkit
       </div>
       <h1 class="title">
-        Tools to help in everyday development tasks.
+        Tools to help on everyday development tasks.
       </h1>
       <p class="subtitle">
-        Essential tools for shipping fast, reliable, and secure infrastructure.
+        Essential tools to aid in shipping fast, reliable, and secure software. 
       </p>
     </div>
 
@@ -192,7 +192,7 @@ function getSilhouetteType(toolPath: string): string {
           </h3>
           <Draggable
             :list="favoriteTools"
-            class="grid grid-cols-1 gap-12px lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4"
+            class="grid grid-cols-1 gap-12px sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6"
             ghost-class="ghost-favorites-draggable"
             item-key="name"
             @end="onUpdateFavoriteTools"
@@ -208,7 +208,7 @@ function getSilhouetteType(toolPath: string): string {
         <h3 class="section-header">
           {{ t('home.categories.newestTools') }}
         </h3>
-        <div class="grid grid-cols-1 gap-12px lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div class="grid grid-cols-1 gap-12px sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6">
           <ToolCardModern v-for="tool in toolStore.newTools" :key="tool.name" :tool="tool" :silhouette-type="getSilhouetteType(tool.path)" @click="navigateToTool(tool.path)" />
         </div>
       </div>
@@ -216,7 +216,7 @@ function getSilhouetteType(toolPath: string): string {
       <h3 class="section-header">
         {{ selectedCategory === 'all' ? $t('home.categories.allTools') : selectedCategory }}
       </h3>
-      <div class="grid grid-cols-1 gap-12px lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="grid grid-cols-1 gap-12px sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6">
         <ToolCardModern v-for="tool in filteredTools" :key="tool.name" :tool="tool" :silhouette-type="getSilhouetteType(tool.path)" @click="navigateToTool(tool.path)" />
       </div>
     </div>
@@ -248,22 +248,22 @@ function getSilhouetteType(toolPath: string): string {
   gap: 8px;
   padding: 6px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  color: #93c5fd;
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  color: #d8b4fe;
   font-size: 12px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   font-weight: 600;
   margin-bottom: 24px;
   background: rgba(15, 23, 42, 0.6);
-  box-shadow: inset 0 0 18px rgba(59, 130, 246, 0.25);
+  box-shadow: inset 0 0 18px rgba(168, 85, 247, 0.28), 0 0 26px rgba(168, 85, 247, 0.22);
 }
 
 :global(html:not(.dark)) .hero-eyebrow {
   background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(15, 23, 42, 0.2);
-  color: #0f172a;
-  box-shadow: inset 0 0 12px rgba(15, 23, 42, 0.08);
+  border-color: rgba(168, 85, 247, 0.25);
+  color: #6b21a8;
+  box-shadow: inset 0 0 12px rgba(168, 85, 247, 0.12);
 }
 
 .title {

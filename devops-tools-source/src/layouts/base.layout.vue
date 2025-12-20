@@ -14,11 +14,13 @@ import { useToolStore } from '@/tools/tools.store';
 import CollapsibleToolMenu from '@/components/CollapsibleToolMenu.vue';
 import { getEnvColorScheme } from '@/utils/env-colors';
 import { detectEnvironment } from '@/utils/runtime-env';
+import { computeBuildVersion } from '@/utils/versioning';
 
 const styleStore = useStyleStore();
 const version = config.app.version;
 const deploymentDate = config.app.deploymentDate;
 const buildNumber = config.app.buildNumber;
+const displayedVersion = computed(() => computeBuildVersion(version, buildNumber));
 
 const formattedDeploymentDate = computed(() => {
   if (!deploymentDate) {
@@ -111,7 +113,7 @@ const tools = computed<ToolCategory[]>(() => [
 
           <div class="footer">
             <div class="footer-version">
-              DevOps Toolkit v{{ version }}
+              DevOps Toolkit v{{ displayedVersion }}
             </div>
             <div v-if="buildNumber" class="footer-build">
               Build #{{ buildNumber }}
@@ -126,6 +128,7 @@ const tools = computed<ToolCategory[]>(() => [
       <template #content>
         <div flex items-center justify-center gap-2>
           <c-button
+            v-if="!styleStore.isSmallScreen"
             circle
             variant="text"
             :aria-label="$t('home.toggleMenu')"

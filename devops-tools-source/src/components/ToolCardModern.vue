@@ -100,8 +100,8 @@ const amberGlowGradient = 'linear-gradient(135deg, rgba(249, 115, 22, 0.95) 0%, 
 <template>
   <div class="modern-tool-card" @click="emit('click')">
     <div class="card-glow" :style="{ background: amberGlowGradient }" />
-    <div class="card-content">
-      <div class="color-accent" :style="{ background: getToolColor.gradient }" />
+      <div class="card-content">
+        <div class="color-accent" :style="{ background: getToolColor.gradient }" />
 
       <div class="card-top">
         <div class="card-tag" :style="{ color: getToolColor.light, borderColor: `${getToolColor.light}55` }">
@@ -112,13 +112,18 @@ const amberGlowGradient = 'linear-gradient(135deg, rgba(249, 115, 22, 0.95) 0%, 
         </div>
       </div>
 
-      <div class="tool-icon-container">
-        <div class="icon-background" :style="{ background: getToolColor.gradient, opacity: 0.1 }" />
-        <ToolSilhouettes
-          :tool="getSilhouetteType"
-          :size="80"
-          class="tool-icon"
-        />
+      <div class="tool-icon-outer">
+        <div class="tool-icon-container" :title="tool.description">
+          <div class="icon-background" :style="{ background: getToolColor.gradient, opacity: 0.1 }" />
+          <ToolSilhouettes
+            :tool="getSilhouetteType"
+            :size="64"
+            class="tool-icon"
+          />
+        </div>
+        <div class="icon-tooltip">
+          {{ tool.description }}
+        </div>
       </div>
 
       <div class="tool-name">
@@ -138,6 +143,7 @@ const amberGlowGradient = 'linear-gradient(135deg, rgba(249, 115, 22, 0.95) 0%, 
   cursor: pointer;
   transition: transform 0.4s ease;
   border-radius: 24px;
+  width: 100%;
 
   &:hover {
     transform: translateY(-8px);
@@ -203,16 +209,17 @@ const amberGlowGradient = 'linear-gradient(135deg, rgba(249, 115, 22, 0.95) 0%, 
   background: var(--app-card);
   border: 1px solid var(--app-card-border);
   border-radius: 24px;
-  padding: 0 0 28px 0;
+  padding: 14px 14px 22px 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 260px;
+  width: 100%;
+  min-height: 240px;
   box-shadow:
     0 18px 40px rgba(2, 6, 23, 0.35),
     inset 0 1px 0 rgba(148, 163, 184, 0.12);
   transition: all 0.4s ease;
-  overflow: hidden;
+  overflow: visible;
   z-index: 1;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -240,20 +247,38 @@ const amberGlowGradient = 'linear-gradient(135deg, rgba(249, 115, 22, 0.95) 0%, 
   padding: 16px 20px 0;
 }
 
+.tool-icon-outer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 12px;
+  margin: -6px -6px 0;
+  cursor: pointer;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -16px;
+  }
+}
+
 .tool-icon-container {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 104px;
+  height: 104px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 20px 0 24px;
+  margin: 14px 0 16px;
+  cursor: pointer;
 }
 
 .icon-background {
   position: absolute;
-  width: 100px;
-  height: 100px;
+  width: 88px;
+  height: 88px;
   border-radius: 50%;
   transition: all 0.4s ease;
   z-index: 0;
@@ -269,6 +294,46 @@ const amberGlowGradient = 'linear-gradient(135deg, rgba(249, 115, 22, 0.95) 0%, 
     drop-shadow(0 6px 18px rgba(2, 6, 23, 0.4))
     drop-shadow(0 0 12px var(--app-amber-glow));
   animation: iconPulse 6.8s ease-in-out infinite;
+}
+
+.icon-tooltip {
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 180px;
+  max-width: 260px;
+  padding: 8px 10px;
+  background: rgba(7, 11, 20, 0.95);
+  color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 20;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  white-space: normal;
+}
+
+.tool-icon-outer:hover .icon-tooltip,
+.modern-tool-card:hover .icon-tooltip {
+  opacity: 1;
+  transform: translate(-50%, -6px);
+}
+
+.tool-icon-outer:focus-within .icon-tooltip,
+.modern-tool-card:focus-within .icon-tooltip {
+  opacity: 1;
+  transform: translate(-50%, -6px);
+}
+
+:global(html:not(.dark)) .icon-tooltip {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0f172a;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.2);
 }
 
 @keyframes iconPulse {
@@ -290,7 +355,7 @@ const amberGlowGradient = 'linear-gradient(135deg, rgba(249, 115, 22, 0.95) 0%, 
   color: var(--app-amber-soft);
   text-align: center;
   line-height: 1.25;
-  margin: 0 24px 10px;
+  margin: 0 18px 10px;
   letter-spacing: -0.02em;
   font-family: var(--font-sans);
   text-shadow: 0 0 12px var(--app-amber-glow);
@@ -302,9 +367,9 @@ const amberGlowGradient = 'linear-gradient(135deg, rgba(249, 115, 22, 0.95) 0%, 
   color: var(--app-amber);
   text-align: center;
   line-height: 1.42857;
-  margin: 0 24px;
+  margin: 0 16px;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   letter-spacing: -0.01em;
@@ -325,6 +390,42 @@ const amberGlowGradient = 'linear-gradient(135deg, rgba(249, 115, 22, 0.95) 0%, 
     letter-spacing: 0.6px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
     font-family: var(--font-sans);
+  }
+}
+
+@media (max-width: 700px) {
+  .card-content {
+    min-height: 260px;
+    padding: 10px 12px 24px 12px;
+  }
+
+  .tool-icon-container {
+    width: 112px;
+    height: 112px;
+    margin: 16px 0 18px;
+  }
+
+  .icon-background {
+    width: 88px;
+    height: 88px;
+  }
+
+  .tool-icon {
+    transform: none;
+  }
+
+  .tool-name {
+    font-size: 18px;
+    margin: 0 24px 10px;
+  }
+
+  .tool-description {
+    font-size: 14px;
+    margin: 0 18px;
+    display: block;
+    -webkit-line-clamp: unset;
+    -webkit-box-orient: unset;
+    overflow: visible;
   }
 }
 </style>

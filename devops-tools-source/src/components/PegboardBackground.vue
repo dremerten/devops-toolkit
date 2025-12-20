@@ -32,8 +32,8 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(500px 300px at 80% 0%, rgba(59, 130, 246, 0.25), transparent 65%),
-    radial-gradient(420px 260px at 20% 15%, rgba(56, 189, 248, 0.2), transparent 60%);
+    radial-gradient(500px 300px at 80% 0%, rgba(168, 85, 247, 0.25), transparent 65%),
+    radial-gradient(420px 260px at 20% 15%, rgba(192, 132, 252, 0.18), transparent 60%);
   opacity: 0.65;
   pointer-events: none;
   animation: sheen 18s ease-in-out infinite;
