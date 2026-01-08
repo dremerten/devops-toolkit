@@ -3,8 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
-      - develop
+      - '**'
     paths:
       - 'devops-tools-source/**'
       - 'kubernetes/**'
@@ -12,14 +11,35 @@ on:
   pull_request:
     branches:
       - main
-      - develop
+    paths:
+      - 'devops-tools-source/**'
+      - 'kubernetes/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+    inputs:
+      prod_tag:
+        description: 'Override prod tag (e.g., v12). Leave blank for auto next vN.'
+        required: false
+        type: string
+      target_env:
+        description: 'Optional manual deploy target (qa, staging, production)'
+        required: false
+        type: choice
+        options:
+          - qa
+          - staging
+          - production
+        default: qa
+      image_tag:
+        description: 'Optional image tag to deploy (defaults per env)'
+        required: false
+        default: ''
 
 env:
   DOCKER_IMAGE: dremer10/devops-toolkit
   KUBECONFIG_PATH: ${{ github.workspace }}/.kube/config
 
 jobs:
-  # Job 1: Build and Test
   build-and-test:
     name: Build & Test
     runs-on: ubuntu-latest
@@ -60,15 +80,17 @@ jobs:
           path: devops-tools-source/dist
           retention-days: 1
 
-  # Job 2: Build and Push Docker Image
   docker-build-push:
     name: Docker Build & Push
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     outputs:
       image-tag: ${{ steps.meta.outputs.tags }}
       image-digest: ${{ steps.build.outputs.digest }}
+      short-sha: ${{ steps.meta.outputs.short-sha }}
+      version: ${{ steps.meta.outputs.version }}
+      next-prod-tag: ${{ steps.meta.outputs.next-prod-tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -86,11 +108,21 @@ jobs:
         id: meta
         run: |
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-          VERSION="1.0.${{ github.run_number }}"
           DEPLOYMENT_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          VERSION="1.0.${{ github.run_number }}"
 
-          echo "tags=${{ env.DOCKER_IMAGE }}:${SHORT_SHA},${{ env.DOCKER_IMAGE }}:latest,${{ env.DOCKER_IMAGE }}:${VERSION}" >> $GITHUB_OUTPUT
+          TAGS="${{ env.DOCKER_IMAGE }}:dev"
+          NEXT_V_TAG=""
+
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            LATEST_TAG=$(git tag --list 'v*' | sed 's/^v//' | sort -n | tail -1)
+            NEXT_TAG_NUMBER=$(( ${LATEST_TAG:-0} + 1 ))
+            NEXT_V_TAG="v${NEXT_TAG_NUMBER}"
+            TAGS="${TAGS},${{ env.DOCKER_IMAGE }}:${NEXT_V_TAG},${{ env.DOCKER_IMAGE }}:latest"
+          fi
+
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+          echo "next-prod-tag=${NEXT_V_TAG}" >> $GITHUB_OUTPUT
           echo "short-sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "deployment-date=${DEPLOYMENT_DATE}" >> $GITHUB_OUTPUT
@@ -126,7 +158,6 @@ jobs:
           echo "- **Digest**: ${{ steps.build.outputs.digest }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
 
-  # Job 3: Security Scan
   security-scan:
     name: Security Scan
     needs: docker-build-push
@@ -141,8 +172,7 @@ jobs:
       - name: Get image tag
         id: image-tag
         run: |
-          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          echo "tag=${{ env.DOCKER_IMAGE }}:${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "tag=${{ env.DOCKER_IMAGE }}:dev" >> $GITHUB_OUTPUT
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -178,12 +208,11 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Check the Security tab for detailed vulnerability report." >> $GITHUB_STEP_SUMMARY
 
-  # Job 4: Deploy to Development
   deploy-dev:
     name: Deploy to Development
     needs: [docker-build-push, security-scan]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
+    if: github.event_name == 'push' && github.ref != 'refs/heads/main'
     environment:
       name: development
       url: https://dev-devops-toolkit.dremer10.com
@@ -204,13 +233,14 @@ jobs:
 
       - name: Deploy to Development
         run: |
+          kubectl set image deployment/devops-toolkit devops-toolkit=${{ env.DOCKER_IMAGE }}:dev -n dev
           kubectl rollout restart deployment/devops-toolkit -n dev
           kubectl rollout status deployment/devops-toolkit -n dev --timeout=300s
 
       - name: Verify deployment
         run: |
           kubectl get pods -n dev -l app=devops-toolkit
-          kubectl get ingress -n dev devops-toolkit-dev
+          kubectl get httproute -n dev devops-toolkit
 
       - name: Deployment summary
         run: |
@@ -220,12 +250,11 @@ jobs:
           echo "- **URL**: https://dev-devops-toolkit.dremer10.com" >> $GITHUB_STEP_SUMMARY
           echo "- **Status**: Deployed successfully" >> $GITHUB_STEP_SUMMARY
 
-  # Job 5: Deploy to QA
   deploy-qa:
     name: Deploy to QA
     needs: [docker-build-push, security-scan]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target_env == 'qa')
     environment:
       name: qa
       url: https://qa-devops-toolkit.dremer10.com
@@ -246,13 +275,16 @@ jobs:
 
       - name: Deploy to QA
         run: |
+          IMG_TAG="${{ github.event.inputs.image_tag }}"
+          if [ -z "$IMG_TAG" ]; then IMG_TAG="dev"; fi
+          kubectl set image deployment/devops-toolkit devops-toolkit=${{ env.DOCKER_IMAGE }}:$IMG_TAG -n qa
           kubectl rollout restart deployment/devops-toolkit -n qa
           kubectl rollout status deployment/devops-toolkit -n qa --timeout=300s
 
       - name: Verify deployment
         run: |
           kubectl get pods -n qa -l app=devops-toolkit
-          kubectl get ingress -n qa devops-toolkit-qa
+          kubectl get httproute -n qa devops-toolkit
 
       - name: Deployment summary
         run: |
@@ -262,12 +294,11 @@ jobs:
           echo "- **URL**: https://qa-devops-toolkit.dremer10.com" >> $GITHUB_STEP_SUMMARY
           echo "- **Status**: Deployed successfully" >> $GITHUB_STEP_SUMMARY
 
-  # Job 6: Deploy to Staging
   deploy-staging:
     name: Deploy to Staging
     needs: [docker-build-push, security-scan]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target_env == 'staging')
     environment:
       name: staging
       url: https://staging-devops-toolkit.dremer10.com
@@ -288,13 +319,16 @@ jobs:
 
       - name: Deploy to Staging
         run: |
+          IMG_TAG="${{ github.event.inputs.image_tag }}"
+          if [ -z "$IMG_TAG" ]; then IMG_TAG="dev"; fi
+          kubectl set image deployment/devops-toolkit devops-toolkit=${{ env.DOCKER_IMAGE }}:$IMG_TAG -n staging
           kubectl rollout restart deployment/devops-toolkit -n staging
           kubectl rollout status deployment/devops-toolkit -n staging --timeout=300s
 
       - name: Verify deployment
         run: |
           kubectl get pods -n staging -l app=devops-toolkit
-          kubectl get ingress -n staging devops-toolkit-staging
+          kubectl get httproute -n staging devops-toolkit
 
       - name: Deployment summary
         run: |
@@ -304,12 +338,11 @@ jobs:
           echo "- **URL**: https://staging-devops-toolkit.dremer10.com" >> $GITHUB_STEP_SUMMARY
           echo "- **Status**: Deployed successfully" >> $GITHUB_STEP_SUMMARY
 
-  # Job 7: Deploy to Production (with manual approval)
   deploy-production:
     name: Deploy to Production
     needs: [docker-build-push, security-scan, deploy-staging]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
       name: production
       url: https://devops-toolkit.dremer10.com
@@ -330,13 +363,25 @@ jobs:
 
       - name: Deploy to Production
         run: |
+          PROD_TAG_INPUT="${{ github.event.inputs.prod_tag }}"
+          AUTO_NEXT="${{ needs.docker-build-push.outputs.next-prod-tag }}"
+          if [ -n "$PROD_TAG_INPUT" ]; then
+            TAG="$PROD_TAG_INPUT"
+          elif [ -n "$AUTO_NEXT" ]; then
+            TAG="$AUTO_NEXT"
+          else
+            LATEST_TAG=$(git tag --list 'v*' | sed 's/^v//' | sort -n | tail -1)
+            NEXT_TAG_NUMBER=$(( ${LATEST_TAG:-0} + 1 ))
+            TAG="v${NEXT_TAG_NUMBER}"
+          fi
+          kubectl set image deployment/devops-toolkit devops-toolkit=${{ env.DOCKER_IMAGE }}:$TAG -n production
           kubectl rollout restart deployment/devops-toolkit -n production
           kubectl rollout status deployment/devops-toolkit -n production --timeout=300s
 
       - name: Verify deployment
         run: |
           kubectl get pods -n production -l app=devops-toolkit
-          kubectl get ingress -n production devops-toolkit-production
+          kubectl get httproute -n production devops-toolkit
 
       - name: Deployment summary
         run: |
@@ -344,11 +389,5 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
           echo "- **URL**: https://devops-toolkit.dremer10.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag Deployed**: $TAG" >> $GITHUB_STEP_SUMMARY
           echo "- **Status**: Deployed successfully" >> $GITHUB_STEP_SUMMARY
-
-      - name: Create deployment notification
-        if: success()
-        run: |
-          echo "🚀 Production deployment completed successfully!"
-          echo "Version: ${{ github.sha }}"
-          echo "URL: https://devops-toolkit.dremer10.com"
