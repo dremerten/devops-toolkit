@@ -164,7 +164,7 @@ function getSilhouetteType(toolPath: string): string {
         Tools to help on everyday development tasks.
       </h1>
       <p class="subtitle">
-        Essential tools to aid in shipping fast, reliable, and secure software. 
+        Essential tools to aid in shipping fast, reliable, and secure software.
       </p>
     </div>
 
@@ -192,7 +192,7 @@ function getSilhouetteType(toolPath: string): string {
           </h3>
           <Draggable
             :list="favoriteTools"
-            class="grid grid-cols-1 gap-12px sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6"
+            class="grid gap-12px grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6"
             ghost-class="ghost-favorites-draggable"
             item-key="name"
             @end="onUpdateFavoriteTools"
@@ -208,7 +208,7 @@ function getSilhouetteType(toolPath: string): string {
         <h3 class="section-header">
           {{ t('home.categories.newestTools') }}
         </h3>
-        <div class="grid grid-cols-1 gap-12px sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6">
+        <div class="grid gap-12px grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6">
           <ToolCardModern v-for="tool in toolStore.newTools" :key="tool.name" :tool="tool" :silhouette-type="getSilhouetteType(tool.path)" @click="navigateToTool(tool.path)" />
         </div>
       </div>
@@ -216,7 +216,7 @@ function getSilhouetteType(toolPath: string): string {
       <h3 class="section-header">
         {{ selectedCategory === 'all' ? $t('home.categories.allTools') : selectedCategory }}
       </h3>
-      <div class="grid grid-cols-1 gap-12px sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6">
+      <div class="grid gap-12px grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6">
         <ToolCardModern v-for="tool in filteredTools" :key="tool.name" :tool="tool" :silhouette-type="getSilhouetteType(tool.path)" @click="navigateToTool(tool.path)" />
       </div>
     </div>

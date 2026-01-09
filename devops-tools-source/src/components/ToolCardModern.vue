@@ -100,8 +100,8 @@ const amberGlowGradient = 'linear-gradient(135deg, rgba(249, 115, 22, 0.95) 0%, 
 <template>
   <div class="modern-tool-card" @click="emit('click')">
     <div class="card-glow" :style="{ background: amberGlowGradient }" />
-      <div class="card-content">
-        <div class="color-accent" :style="{ background: getToolColor.gradient }" />
+    <div class="card-content">
+      <div class="color-accent" :style="{ background: getToolColor.gradient }" />
 
       <div class="card-top">
         <div class="card-tag" :style="{ color: getToolColor.light, borderColor: `${getToolColor.light}55` }">

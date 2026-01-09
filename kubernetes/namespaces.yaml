@@ -1,22 +1,22 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: production
+  name: devops-toolkit-production
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: staging
+  name: devops-toolkit-staging
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: qa
+  name: devops-toolkit-qa
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: dev
+  name: devops-toolkit-dev
 ---
 apiVersion: v1
 kind: Namespace
