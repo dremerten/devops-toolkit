@@ -34,23 +34,23 @@ echo ""
 
 # Step 3: Force pull new image on all environments
 echo -e "${YELLOW}[3/5] Restarting deployments to pull new image...${NC}"
-kubectl rollout restart deployment/devops-toolkit -n production
-kubectl rollout restart deployment/devops-toolkit -n staging
-kubectl rollout restart deployment/devops-toolkit -n qa
-kubectl rollout restart deployment/devops-toolkit -n dev
+kubectl rollout restart deployment/devops-toolkit -n devops-toolkit-production
+kubectl rollout restart deployment/devops-toolkit -n devops-toolkit-staging
+kubectl rollout restart deployment/devops-toolkit -n devops-toolkit-qa
+kubectl rollout restart deployment/devops-toolkit -n devops-toolkit-dev
 echo -e "${GREEN}✓ Deployments restarted${NC}"
 echo ""
 
 # Step 4: Wait for rollouts
 echo -e "${YELLOW}[4/5] Waiting for rollouts to complete...${NC}"
 echo "  Production..."
-kubectl rollout status deployment/devops-toolkit -n production --timeout=120s
+kubectl rollout status deployment/devops-toolkit -n devops-toolkit-production --timeout=120s
 echo "  Staging..."
-kubectl rollout status deployment/devops-toolkit -n staging --timeout=120s
+kubectl rollout status deployment/devops-toolkit -n devops-toolkit-staging --timeout=120s
 echo "  QA..."
-kubectl rollout status deployment/devops-toolkit -n qa --timeout=120s
+kubectl rollout status deployment/devops-toolkit -n devops-toolkit-qa --timeout=120s
 echo "  Dev..."
-kubectl rollout status deployment/devops-toolkit -n dev --timeout=120s
+kubectl rollout status deployment/devops-toolkit -n devops-toolkit-dev --timeout=120s
 echo -e "${GREEN}✓ All rollouts complete${NC}"
 echo ""
 

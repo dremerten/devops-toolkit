@@ -269,10 +269,10 @@ fi
 
 echo ""
 echo -e "${YELLOW}[9/10] Creating Kubernetes namespaces...${NC}"
-kubectl create namespace production --dry-run=client -o yaml | kubectl apply -f -
-kubectl create namespace staging --dry-run=client -o yaml | kubectl apply -f -
-kubectl create namespace qa --dry-run=client -o yaml | kubectl apply -f -
-kubectl create namespace dev --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace devops-toolkit-production --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace devops-toolkit-staging --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace devops-toolkit-qa --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace devops-toolkit-dev --dry-run=client -o yaml | kubectl apply -f -
 kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
 kubectl create namespace ci-cd --dry-run=client -o yaml | kubectl apply -f -
 

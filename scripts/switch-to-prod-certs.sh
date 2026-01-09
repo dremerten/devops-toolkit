@@ -33,7 +33,7 @@ read -p "Have you verified staging certificates are working? (yes/no): " -r
 if [[ ! $REPLY =~ ^[Yy]es$ ]]; then
     echo "Cancelled. Please verify staging certificates first:"
     echo "  kubectl get certificate -A"
-    echo "  kubectl describe certificate -n production devops-toolkit-production-tls"
+    echo "  kubectl describe certificate -n devops-toolkit-production devops-toolkit-production-tls"
     exit 0
 fi
 
@@ -49,10 +49,10 @@ echo ""
 echo -e "${YELLOW}[2/3] Deleting existing staging certificates...${NC}"
 
 # Delete staging certificates to force re-issuance with production
-kubectl delete certificate --all -n production 2>/dev/null || true
-kubectl delete certificate --all -n staging 2>/dev/null || true
-kubectl delete certificate --all -n qa 2>/dev/null || true
-kubectl delete certificate --all -n dev 2>/dev/null || true
+kubectl delete certificate --all -n devops-toolkit-production 2>/dev/null || true
+kubectl delete certificate --all -n devops-toolkit-staging 2>/dev/null || true
+kubectl delete certificate --all -n devops-toolkit-qa 2>/dev/null || true
+kubectl delete certificate --all -n devops-toolkit-dev 2>/dev/null || true
 kubectl delete certificate --all -n monitoring 2>/dev/null || true
 kubectl delete certificate --all -n ci-cd 2>/dev/null || true
 
@@ -78,7 +78,7 @@ echo "1. Monitor certificate issuance (may take 2-5 minutes):"
 echo -e "   ${YELLOW}watch kubectl get certificate -A${NC}"
 echo ""
 echo "2. Check certificate details:"
-echo -e "   ${YELLOW}kubectl describe certificate -n production devops-toolkit-production-tls${NC}"
+echo -e "   ${YELLOW}kubectl describe certificate -n devops-toolkit-production devops-toolkit-production-tls${NC}"
 echo ""
 echo "3. View cert-manager logs if issues occur:"
 echo -e "   ${YELLOW}kubectl logs -n cert-manager -l app=cert-manager --tail=50${NC}"
