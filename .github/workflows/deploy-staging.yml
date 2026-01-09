@@ -28,13 +28,13 @@ jobs:
       - name: Deploy to Staging
         run: |
           echo "🚀 Starting staging deployment..."
-          kubectl rollout restart deployment/devops-toolkit -n staging
-          kubectl rollout status deployment/devops-toolkit -n staging --timeout=300s
+          kubectl rollout restart deployment/devops-toolkit -n devops-toolkit-staging
+          kubectl rollout status deployment/devops-toolkit -n devops-toolkit-staging --timeout=300s
 
       - name: Verify deployment
         run: |
-          kubectl get pods -n staging -l app=devops-toolkit
-          kubectl get ingress -n staging devops-toolkit-staging
+          kubectl get pods -n devops-toolkit-staging -l app=devops-toolkit
+          kubectl get ingress -n devops-toolkit-staging devops-toolkit-staging
 
       - name: Deployment summary
         run: |

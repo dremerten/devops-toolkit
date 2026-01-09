@@ -46,21 +46,21 @@ jobs:
       - name: Get current deployment info
         run: |
           echo "Current deployment status:"
-          kubectl get deployment devops-toolkit -n production
-          kubectl get pods -n production -l app=devops-toolkit
+          kubectl get deployment devops-toolkit -n devops-toolkit-production
+          kubectl get pods -n devops-toolkit-production -l app=devops-toolkit
 
       - name: Deploy to Production
         run: |
           echo "🚀 Starting production deployment..."
-          kubectl rollout restart deployment/devops-toolkit -n production
+          kubectl rollout restart deployment/devops-toolkit -n devops-toolkit-production
           echo "⏳ Waiting for rollout to complete..."
-          kubectl rollout status deployment/devops-toolkit -n production --timeout=300s
+          kubectl rollout status deployment/devops-toolkit -n devops-toolkit-production --timeout=300s
 
       - name: Verify deployment
         run: |
           echo "✓ Verifying deployment..."
-          kubectl get pods -n production -l app=devops-toolkit
-          kubectl get ingress -n production devops-toolkit-production
+          kubectl get pods -n devops-toolkit-production -l app=devops-toolkit
+          kubectl get ingress -n devops-toolkit-production devops-toolkit-production
 
       - name: Health check
         run: |
