@@ -105,10 +105,10 @@ deploy_to_namespace() {
 }
 
 # Deploy to all environments
-deploy_to_namespace "production" "Production"
-deploy_to_namespace "staging" "Staging"
-deploy_to_namespace "qa" "QA"
-deploy_to_namespace "dev" "Dev"
+deploy_to_namespace "devops-toolkit-production" "Production"
+deploy_to_namespace "devops-toolkit-staging" "Staging"
+deploy_to_namespace "devops-toolkit-qa" "QA"
+deploy_to_namespace "devops-toolkit-dev" "Dev"
 
 echo ""
 echo -e "${YELLOW}[4/5] Applying ingress configurations...${NC}"
@@ -118,19 +118,19 @@ echo ""
 echo -e "${YELLOW}[5/5] Verifying deployments...${NC}"
 echo ""
 echo -e "${BLUE}Production:${NC}"
-kubectl get pods,svc -n production
+kubectl get pods,svc -n devops-toolkit-production
 
 echo ""
 echo -e "${BLUE}Staging:${NC}"
-kubectl get pods,svc -n staging
+kubectl get pods,svc -n devops-toolkit-staging
 
 echo ""
 echo -e "${BLUE}QA:${NC}"
-kubectl get pods,svc -n qa
+kubectl get pods,svc -n devops-toolkit-qa
 
 echo ""
 echo -e "${BLUE}Dev:${NC}"
-kubectl get pods,svc -n dev
+kubectl get pods,svc -n devops-toolkit-dev
 
 echo ""
 echo -e "${BLUE}Ingresses:${NC}"

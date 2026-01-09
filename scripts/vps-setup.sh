@@ -2,7 +2,7 @@
 set -e
 
 # DevOps Observatory VPS Setup Script
-# This script sets up a Hostinger VPS with K3s, Jenkins, Vault, and cert-manager
+# This script sets up a Hostinger VPS with K3s, Vault, and cert-manager
 
 echo "========================================="
 echo "DevOps Observatory VPS Setup"
@@ -135,14 +135,10 @@ echo "2. Apply Kubernetes manifests:"
 echo "   kubectl apply -f kubernetes/cert-manager/cert-manager-install.yaml"
 echo "   kubectl apply -f kubernetes/namespaces.yaml"
 echo "   kubectl apply -f kubernetes/deployments/vault.yaml"
-echo "   kubectl apply -f kubernetes/deployments/jenkins.yaml"
 echo ""
 echo "3. Initialize Vault:"
 echo "   kubectl exec -it vault-0 -n vault -- vault operator init"
 echo "   Save the unseal keys and root token!"
-echo ""
-echo "4. Get Jenkins initial password:"
-echo "   kubectl exec -it deployment/jenkins -n ci-cd -- cat /var/jenkins_home/secrets/initialAdminPassword"
 echo ""
 echo "K3s cluster info:"
 kubectl cluster-info
