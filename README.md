@@ -7,7 +7,7 @@
 |-------|-----------|
 | Container Runtime | containerd |
 | Orchestration | k3s (Kubernetes) |
-| Ingress | NGINX Ingress Controller |
+| Gateway | NGINX Gateway Fabric (Gateway API) |
 | TLS Management | cert-manager + Let's Encrypt |
 | Monitoring | Prometheus + Grafana |
 | Metrics | Node Exporter, cAdvisor |
@@ -36,10 +36,9 @@
 │  │          k3s Cluster (Single Node)             │ │
 │  │                                                 │ │
 │  │  ┌──────────────────────────────────────────┐  │ │
-│  │  │    NGINX Ingress Controller              │  │ │
-│  │  │    - NodePort 30080 (HTTP)               │  │ │
-│  │  │    - NodePort 30443 (HTTPS)              │  │ │
-│  │  │    - Routes based on Host headers        │  │ │
+│  │  │    NGINX Gateway Fabric (Gateway API)    │  │ │
+│  │  │    - Terminates TLS via cert-manager     │  │ │
+│  │  │    - Routes based on HTTPRoute hostnames │  │ │
 │  │  └──────────────────────────────────────────┘  │ │
 │  │                                                 │ │
 │  │  ┌──────────────────────────────────────────┐  │ │
@@ -49,13 +48,13 @@
 │  │  └──────────────────────────────────────────┘  │ │
 │  │                                                 │ │
 │  │  Namespaces:                                    │ │
-│  │  ├─ production                                  │ │
+│  │  ├─ devops-toolkit-production                   │ │
 │  │  │   └─ devops-toolkit pods (2 replicas)       │ │
-│  │  ├─ staging                                     │ │
+│  │  ├─ devops-toolkit-staging                      │ │
 │  │  │   └─ devops-toolkit pods (2 replicas)       │ │
-│  │  ├─ qa                                          │ │
+│  │  ├─ devops-toolkit-qa                           │ │
 │  │  │   └─ devops-toolkit pods (2 replicas)       │ │
-│  │  ├─ dev                                         │ │
+│  │  ├─ devops-toolkit-dev                          │ │
 │  │  │   └─ devops-toolkit pods (2 replicas)       │ │
 │  │  └─ monitoring                                  │ │
 │  │      ├─ prometheus                              │ │
@@ -71,29 +70,29 @@
 ```
 Internet (HTTPS)
     ↓
-Port 30080 (HTTP) / 30443 (HTTPS)
-    ↓
-NGINX Ingress Controller
-    ↓ (routes based on Host header)
-    ├─ devops-toolkit.dremer10.com → production/devops-toolkit
-    ├─ staging-devops-toolkit.dremer10.com → staging/devops-toolkit
-    ├─ qa-devops-toolkit.dremer10.com → qa/devops-toolkit
-    ├─ dev-devops-toolkit.dremer10.com → dev/devops-toolkit
+NGINX Gateway Fabric (Gateway API)
+    ↓ (host-based routing via HTTPRoute)
+    ├─ devops-toolkit.dremer10.com → devops-toolkit-production/devops-toolkit
+    ├─ staging-devops-toolkit.dremer10.com → devops-toolkit-staging/devops-toolkit
+    ├─ qa-devops-toolkit.dremer10.com → devops-toolkit-qa/devops-toolkit
+    ├─ dev-devops-toolkit.dremer10.com → devops-toolkit-dev/devops-toolkit
     └─ grafana.devops-toolkit.dremer10.com → monitoring/grafana
 ```
+**Gateway API / NGINX Gateway Fabric Flow**
+- Gateway listener terminates TLS with cert-manager-issued secrets (in `nginx-gateway`).
+- HTTPRoute objects live in each `devops-toolkit-*` namespace and bind to the shared Gateway via `parentRefs`.
+- BackendRefs point to namespace-local services (no cross-namespace hops).
+- Migration note: legacy ingress controller removed; traffic now lands on NGINX Gateway Fabric exclusively via HTTPRoute.
 
 ## Components
 
 ### k3s Cluster
 - **Type**: Single-node cluster (control-plane + worker combined)
-- **Version**: v1.28.5+k3s1 or latest
 
-### NGINX Ingress Controller
-- **Type**: Kubernetes Ingress Controller
-- **Service Type**: NodePort
-- **HTTP Port**: xxxxx
-- **HTTPS Port**: xxxxx
-- **Configuration**: `ingressClassName: nginx`
+### NGINX Gateway Fabric (Gateway API)
+- **Type**: Gateway API controller
+- **Listener**: TLS termination with cert-manager secrets (namespace: `nginx-gateway`)
+- **Routing**: HTTPRoute per environment (in `devops-toolkit-*` namespaces) with host-based matching
 
 ### cert-manager
 - **Purpose**: Automatic TLS certificate management
@@ -105,13 +104,13 @@ NGINX Ingress Controller
 
 | Namespace | Purpose | Workloads |
 |-----------|---------|-----------|
-| production | Production environment | 2x devops-toolkit pods |
-| staging | Staging environment | 2x devops-toolkit pods |
-| qa | QA environment | 2x devops-toolkit pods |
-| dev | Development environment | 2x devops-toolkit pods |
+| devops-toolkit-production | Production environment | 2x devops-toolkit pods |
+| devops-toolkit-staging | Staging environment | 2x devops-toolkit pods |
+| devops-toolkit-qa | QA environment | 2x devops-toolkit pods |
+| devops-toolkit-dev | Development environment | 2x devops-toolkit pods |
 | monitoring | Observability stack | Prometheus, Grafana, exporters |
-| ci-cd | CI/CD tools | Jenkins (optional) |
-| ingress-nginx | Ingress controller | NGINX Ingress Controller |
+| ci-cd | CI/CD tools | Reserved (currently unused) |
+| nginx-gateway | Gateway API controller | NGINX Gateway Fabric |
 | cert-manager | Certificate management | cert-manager |
 
 ## Network Ports
@@ -119,20 +118,17 @@ NGINX Ingress Controller
 | Port | Protocol | Purpose | Access |
 |------|----------|---------|--------|
 | xxxx | TCP | k3s API Server | kubectl from laptop |
-| xxxxx | TCP | NGINX Ingress HTTP | External (NodePort) |
-| xxxxx | TCP | NGINX Ingress HTTPS | External (NodePort) |
+| xxxxx | TCP | Gateway listener (HTTP) | External (NodePort/LoadBalancer) |
+| xxxxx | TCP | Gateway listener (HTTPS) | External (NodePort/LoadBalancer) |
 | xxxxx | TCP | Kubelet metrics | Internal |
 | xxxxx | UDP | Flannel VXLAN | Internal |
 
-## Ingress Configuration
+## Gateway API Configuration
 
-All ingresses use:
-- **IngressClass**: `nginx`
-- **TLS**: Enabled via cert-manager
-- **Annotations**:
-  - `cert-manager.io/cluster-issuer: "letsencrypt-prod"`
-  - `nginx.ingress.kubernetes.io/ssl-redirect: "true"`
-  - `nginx.ingress.kubernetes.io/force-ssl-redirect: "true"`
+- **Gateway**: NGINX Gateway Fabric in `nginx-gateway`, TLS via cert-manager
+- **HTTPRoute**: One per environment in each `devops-toolkit-*` namespace, attached via `parentRefs`
+- **BackendRef**: Points to namespace-local service `devops-toolkit`
+- **Migration note**: Replaced legacy ingress objects with Gateway API HTTPRoutes; the former ingress controller is removed.
 
 ## Security
 
@@ -169,7 +165,7 @@ All ingresses use:
 
 ## High Availability Considerations
 
-Current setup is **single-node** for cost efficiency. For HA:
+Current setup is **single-node** for cost efficiency.
 
 ## Deployment Strategy
 
@@ -191,7 +187,7 @@ strategy:
 
 ### Manual Scaling
 ```bash
-kubectl scale deployment/devops-toolkit --replicas=5 -n production
+kubectl scale deployment/devops-toolkit --replicas=5 -n devops-toolkit-production
 ```
 
 ### Auto-Scaling (Optional)
@@ -219,7 +215,7 @@ spec:
 ### Cluster State
 ```bash
 # Backup all manifests
-kubectl get all,ingress,certificates -A -o yaml > cluster-backup.yaml
+kubectl get all,httproutes,certificates -A -o yaml > cluster-backup.yaml
 ```
 
 ## Performance Optimization

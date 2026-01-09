@@ -27,7 +27,7 @@ help:
 	@echo "  make pods               - Show all pods"
 	@echo "  make ingress            - Show all ingresses"
 	@echo "  make certs              - Show TLS certificates status"
-	@echo "  make logs ENV=<env>     - Show logs for environment (prod/staging/qa/dev)"
+	@echo "  make logs ENV=<env>     - Show logs for environment (devops-toolkit-production/devops-toolkit-staging/devops-toolkit-qa/devops-toolkit-dev)"
 	@echo ""
 	@echo "Development:"
 	@echo "  make local              - Start local development environment"
@@ -41,7 +41,7 @@ help:
 	@echo "  make init VPS_IP=192.168.1.100"
 	@echo "  make sync VPS_IP=hostinger"
 	@echo "  make deploy"
-	@echo "  make logs ENV=production"
+	@echo "  make logs ENV=devops-toolkit-production"
 	@echo ""
 
 # Setup local environment
@@ -120,7 +120,7 @@ certs:
 logs:
 ifndef ENV
 	@echo "Error: ENV is required"
-	@echo "Usage: make logs ENV=production|staging|qa|dev"
+	@echo "Usage: make logs ENV=devops-toolkit-production|devops-toolkit-staging|devops-toolkit-qa|devops-toolkit-dev"
 	@exit 1
 endif
 	@export KUBECONFIG=$$HOME/.kube/config-dremer10 && \
@@ -148,12 +148,12 @@ clean:
 scale:
 ifndef ENV
 	@echo "Error: ENV is required"
-	@echo "Usage: make scale ENV=production REPLICAS=3"
+	@echo "Usage: make scale ENV=devops-toolkit-production REPLICAS=3"
 	@exit 1
 endif
 ifndef REPLICAS
 	@echo "Error: REPLICAS is required"
-	@echo "Usage: make scale ENV=production REPLICAS=3"
+	@echo "Usage: make scale ENV=devops-toolkit-production REPLICAS=3"
 	@exit 1
 endif
 	@export KUBECONFIG=$$HOME/.kube/config-dremer10 && \
@@ -164,7 +164,7 @@ endif
 restart:
 ifndef ENV
 	@echo "Error: ENV is required"
-	@echo "Usage: make restart ENV=production|staging|qa|dev"
+	@echo "Usage: make restart ENV=devops-toolkit-production|devops-toolkit-staging|devops-toolkit-qa|devops-toolkit-dev"
 	@exit 1
 endif
 	@export KUBECONFIG=$$HOME/.kube/config-dremer10 && \
@@ -175,7 +175,7 @@ endif
 watch:
 ifndef ENV
 	@echo "Error: ENV is required"
-	@echo "Usage: make watch ENV=production|staging|qa|dev"
+	@echo "Usage: make watch ENV=devops-toolkit-production|devops-toolkit-staging|devops-toolkit-qa|devops-toolkit-dev"
 	@exit 1
 endif
 	@export KUBECONFIG=$$HOME/.kube/config-dremer10 && \
@@ -185,7 +185,7 @@ endif
 forward:
 ifndef ENV
 	@echo "Error: ENV is required"
-	@echo "Usage: make forward ENV=production PORT=8080"
+	@echo "Usage: make forward ENV=devops-toolkit-production PORT=8080"
 	@exit 1
 endif
 	@export KUBECONFIG=$$HOME/.kube/config-dremer10 && \
@@ -195,7 +195,7 @@ endif
 shell:
 ifndef ENV
 	@echo "Error: ENV is required"
-	@echo "Usage: make shell ENV=production|staging|qa|dev"
+	@echo "Usage: make shell ENV=devops-toolkit-production|devops-toolkit-staging|devops-toolkit-qa|devops-toolkit-dev"
 	@exit 1
 endif
 	@export KUBECONFIG=$$HOME/.kube/config-dremer10 && \
