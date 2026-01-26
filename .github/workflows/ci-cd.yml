@@ -115,8 +115,50 @@ jobs:
           NEXT_V_TAG=""
 
           if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            LATEST_TAG=$(git tag --list 'v*' | sed 's/^v//' | sort -n | tail -1)
-            NEXT_TAG_NUMBER=$(( ${LATEST_TAG:-0} + 1 ))
+            DOCKER_HUB_URL="https://hub.docker.com/v2/repositories/${{ env.DOCKER_IMAGE }}/tags?page_size=100"
+            LATEST_TAG=$(DOCKER_HUB_URL="$DOCKER_HUB_URL" DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}" DOCKER_PASSWORD="${{ secrets.DOCKER_PASSWORD }}" python - <<'PY'
+import base64
+import json
+import os
+import re
+import sys
+import urllib.request
+
+url = os.environ.get("DOCKER_HUB_URL")
+username = os.environ.get("DOCKER_USERNAME")
+password = os.environ.get("DOCKER_PASSWORD")
+
+def fetch(u):
+    req = urllib.request.Request(u)
+    if username and password:
+        token = base64.b64encode(f"{username}:{password}".encode("utf-8")).decode("ascii")
+        req.add_header("Authorization", f"Basic {token}")
+    with urllib.request.urlopen(req) as resp:
+        return json.load(resp)
+
+max_tag = None
+while url:
+    data = fetch(url)
+    for item in data.get("results", []):
+        name = item.get("name", "")
+        m = re.fullmatch(r"v(\\d+)", name)
+        if m:
+            n = int(m.group(1))
+            if max_tag is None or n > max_tag:
+                max_tag = n
+    url = data.get("next")
+
+print("" if max_tag is None else str(max_tag))
+PY
+            )
+            if [ -z "$LATEST_TAG" ]; then
+              LATEST_TAG=$(git tag --list 'v*' | sed 's/^v//' | sort -n | tail -1)
+            fi
+            if [ -n "$LATEST_TAG" ]; then
+              NEXT_TAG_NUMBER=$(( ${LATEST_TAG:-0} + 1 ))
+            else
+              NEXT_TAG_NUMBER="${{ github.run_number }}"
+            fi
             NEXT_V_TAG="v${NEXT_TAG_NUMBER}"
             TAGS="${TAGS},${{ env.DOCKER_IMAGE }}:${NEXT_V_TAG},${{ env.DOCKER_IMAGE }}:latest"
           fi
@@ -300,7 +342,7 @@ jobs:
     name: Deploy to Staging
     needs: [docker-build-push, security-scan]
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target_env == 'staging')
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target_env == 'staging') || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     environment:
       name: staging
       url: https://staging-devops-toolkit.dremer10.com
@@ -373,7 +415,41 @@ jobs:
           elif [ -n "$AUTO_NEXT" ]; then
             TAG="$AUTO_NEXT"
           else
-            LATEST_TAG=$(git tag --list 'v*' | sed 's/^v//' | sort -n | tail -1)
+            DOCKER_HUB_URL="https://hub.docker.com/v2/repositories/${{ env.DOCKER_IMAGE }}/tags?page_size=100"
+            LATEST_TAG=$(DOCKER_HUB_URL="$DOCKER_HUB_URL" DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}" DOCKER_PASSWORD="${{ secrets.DOCKER_PASSWORD }}" python - <<'PY'
+import base64
+import json
+import os
+import re
+import urllib.request
+
+url = os.environ.get("DOCKER_HUB_URL")
+username = os.environ.get("DOCKER_USERNAME")
+password = os.environ.get("DOCKER_PASSWORD")
+
+def fetch(u):
+    req = urllib.request.Request(u)
+    if username and password:
+        token = base64.b64encode(f"{username}:{password}".encode("utf-8")).decode("ascii")
+        req.add_header("Authorization", f"Basic {token}")
+    with urllib.request.urlopen(req) as resp:
+        return json.load(resp)
+
+max_tag = None
+while url:
+    data = fetch(url)
+    for item in data.get("results", []):
+        name = item.get("name", "")
+        m = re.fullmatch(r"v(\\d+)", name)
+        if m:
+            n = int(m.group(1))
+            if max_tag is None or n > max_tag:
+                max_tag = n
+    url = data.get("next")
+
+print("" if max_tag is None else str(max_tag))
+PY
+            )
             NEXT_TAG_NUMBER=$(( ${LATEST_TAG:-0} + 1 ))
             TAG="v${NEXT_TAG_NUMBER}"
           fi
