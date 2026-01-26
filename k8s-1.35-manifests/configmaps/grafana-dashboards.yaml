@@ -1,0 +1,286 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: monitoring
+data:
+  dashboard.yml: |
+    apiVersion: 1
+    providers:
+      - name: 'System Metrics'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: true
+        editable: false
+        allowUiUpdates: false
+        options:
+          path: /etc/grafana/provisioning/dashboards
+  system-metrics.json: |
+    {
+      "uid": "system-metrics",
+      "title": "System Metrics",
+      "tags": [
+        "system"
+      ],
+      "timezone": "browser",
+      "schemaVersion": 38,
+      "version": 1,
+      "refresh": "30s",
+      "time": {
+        "from": "now-6h",
+        "to": "now"
+      },
+      "editable": false,
+      "panels": [
+        {
+          "id": 1,
+          "type": "timeseries",
+          "title": "CPU Usage (%)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "public-ds"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 0
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+              "legendFormat": "{{instance}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "type": "timeseries",
+          "title": "Memory Usage (%)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "public-ds"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 0
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))",
+              "legendFormat": "{{instance}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "type": "timeseries",
+          "title": "Disk Usage (%)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "public-ds"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "100 * (1 - (node_filesystem_avail_bytes{mountpoint=\"/\",fstype!~\"tmpfs|overlay|squashfs\"} / node_filesystem_size_bytes{mountpoint=\"/\",fstype!~\"tmpfs|overlay|squashfs\"}))",
+              "legendFormat": "{{instance}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "type": "timeseries",
+          "title": "Network Traffic (B/s)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "public-ds"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "Bps",
+              "min": 0
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "rate(node_network_receive_bytes_total{device!~\"lo\"}[5m])",
+              "legendFormat": "{{instance}} RX",
+              "refId": "A"
+            },
+            {
+              "expr": "rate(node_network_transmit_bytes_total{device!~\"lo\"}[5m])",
+              "legendFormat": "{{instance}} TX",
+              "refId": "B"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "type": "timeseries",
+          "title": "System Uptime (s)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "public-ds"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 16
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "min": 0
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "time() - node_boot_time_seconds",
+              "legendFormat": "{{instance}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "type": "timeseries",
+          "title": "Load Average",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "public-ds"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 16
+          },
+          "fieldConfig": {
+            "defaults": {
+              "min": 0
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "node_load1",
+              "legendFormat": "{{instance}} 1m",
+              "refId": "A"
+            },
+            {
+              "expr": "node_load5",
+              "legendFormat": "{{instance}} 5m",
+              "refId": "B"
+            },
+            {
+              "expr": "node_load15",
+              "legendFormat": "{{instance}} 15m",
+              "refId": "C"
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "type": "timeseries",
+          "title": "Total Memory (bytes)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "public-ds"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 24
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "min": 0
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "node_memory_MemTotal_bytes",
+              "legendFormat": "{{instance}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "type": "timeseries",
+          "title": "CPU Cores",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "public-ds"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 24
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "count by (instance) (node_cpu_seconds_total{mode=\"idle\"})",
+              "legendFormat": "{{instance}}",
+              "refId": "A"
+            }
+          ]
+        }
+      ]
+    }
