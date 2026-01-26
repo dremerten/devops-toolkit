@@ -40,3 +40,4 @@ docker-compose.override.yml
 logs/
 *.out
 markdown-files
+k8s-1.28-manifests
