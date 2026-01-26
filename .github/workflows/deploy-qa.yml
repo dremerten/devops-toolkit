@@ -28,13 +28,14 @@ jobs:
       - name: Deploy to QA
         run: |
           echo "🚀 Starting QA deployment..."
+          kubectl apply -f k8s-1.35-manifests/certificates.yaml
           kubectl rollout restart deployment/devops-toolkit -n devops-toolkit-qa
           kubectl rollout status deployment/devops-toolkit -n devops-toolkit-qa --timeout=300s
 
       - name: Verify deployment
         run: |
           kubectl get pods -n devops-toolkit-qa -l app=devops-toolkit
-          kubectl get ingress -n devops-toolkit-qa devops-toolkit-qa
+          kubectl get httproute -n devops-toolkit-qa devops-toolkit
 
       - name: Deployment summary
         run: |
