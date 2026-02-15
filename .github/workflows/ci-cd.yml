@@ -275,7 +275,7 @@ jobs:
 
       - name: Deploy to Development
         run: |
-          kubectl apply -f k8s-1.35-manifests/certificates.yaml
+          kubectl apply -f k8s-1.35-manifests/environments/development
           kubectl set image deployment/devops-toolkit devops-toolkit=${{ env.DOCKER_IMAGE }}:dev -n devops-toolkit-dev
           kubectl rollout restart deployment/devops-toolkit -n devops-toolkit-dev
           kubectl rollout status deployment/devops-toolkit -n devops-toolkit-dev --timeout=300s
@@ -320,7 +320,7 @@ jobs:
         run: |
           IMG_TAG="${{ github.event.inputs.image_tag }}"
           if [ -z "$IMG_TAG" ]; then IMG_TAG="dev"; fi
-          kubectl apply -f k8s-1.35-manifests/certificates.yaml
+          kubectl apply -f k8s-1.35-manifests/environments/qa
           kubectl set image deployment/devops-toolkit devops-toolkit=${{ env.DOCKER_IMAGE }}:$IMG_TAG -n devops-toolkit-qa
           kubectl rollout restart deployment/devops-toolkit -n devops-toolkit-qa
           kubectl rollout status deployment/devops-toolkit -n devops-toolkit-qa --timeout=300s
@@ -365,7 +365,7 @@ jobs:
         run: |
           IMG_TAG="${{ github.event.inputs.image_tag }}"
           if [ -z "$IMG_TAG" ]; then IMG_TAG="dev"; fi
-          kubectl apply -f k8s-1.35-manifests/certificates.yaml
+          kubectl apply -f k8s-1.35-manifests/environments/staging
           kubectl set image deployment/devops-toolkit devops-toolkit=${{ env.DOCKER_IMAGE }}:$IMG_TAG -n devops-toolkit-staging
           kubectl rollout restart deployment/devops-toolkit -n devops-toolkit-staging
           kubectl rollout status deployment/devops-toolkit -n devops-toolkit-staging --timeout=300s
@@ -453,7 +453,7 @@ jobs:
             NEXT_TAG_NUMBER=$(( ${LATEST_TAG:-0} + 1 ))
             TAG="v${NEXT_TAG_NUMBER}"
           fi
-          kubectl apply -f k8s-1.35-manifests/certificates.yaml
+          kubectl apply -f k8s-1.35-manifests/environments/production
           kubectl set image deployment/devops-toolkit devops-toolkit=${{ env.DOCKER_IMAGE }}:$TAG -n devops-toolkit-production
           kubectl rollout restart deployment/devops-toolkit -n devops-toolkit-production
           kubectl rollout status deployment/devops-toolkit -n devops-toolkit-production --timeout=300s

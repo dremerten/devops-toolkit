@@ -28,7 +28,7 @@ jobs:
       - name: Deploy to Development
         run: |
           echo "🚀 Starting development deployment..."
-          kubectl apply -f k8s-1.35-manifests/certificates.yaml
+          kubectl apply -f k8s-1.35-manifests/environments/development
           kubectl rollout restart deployment/devops-toolkit -n devops-toolkit-dev
           kubectl rollout status deployment/devops-toolkit -n devops-toolkit-dev --timeout=300s
 
